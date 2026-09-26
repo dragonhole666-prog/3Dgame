@@ -1,0 +1,55 @@
+name: HF27 Remote Visual Gate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  source-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify authoritative source is present
+        run: |
+          test -f package.json
+          test -f package-lock.json
+          test -f src/main.ts
+          test -f src/client/core/game.ts
+          test -f server/index.ts
+          test -f PROJECT_HANDOFF.md
+
+  build-test:
+    needs: source-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci
+      - run: npm run verify:package
+      - run: npm run verify:current
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test
+
+  visual-capture:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci
+      - name: Install browser
+        run: npx --yes @playwright/test@1.55.0 install --with-deps chromium
+      - name: Capture fixed visual cameras
+        run: npm run visual:capture
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hf27-visual-captures
+          path: artifacts/hf27-*
+          if-no-files-found: warn
