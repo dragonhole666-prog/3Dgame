@@ -1,7 +1,7 @@
 {
   "version":1,
   "viewport":{"width":1200,"height":675,"deviceScaleFactor":1},
-  "settleMs":1200,
+  "settleMs":300,
   "captures":[
     {"id":"spawn","url":"/?visualCapture=spawn"},
     {"id":"bridge","url":"/?visualCapture=bridge"},
