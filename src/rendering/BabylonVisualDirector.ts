@@ -28,7 +28,7 @@ function directionFromAngles(azimuthDeg:number,elevationDeg:number){
 }
 
 export class BabylonVisualDirector {
-  readonly sun:HemisphericLight extends never ? never : DirectionalLight;
+  readonly sun:DirectionalLight;
   readonly hemisphere:HemisphericLight;
   readonly coolFill:DirectionalLight;
   readonly warmRim:DirectionalLight;
