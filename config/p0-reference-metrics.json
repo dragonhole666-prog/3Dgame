@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "source": "user-reference-20260926-163433",
+  "imageSize": {
+    "width": 1200,
+    "height": 675
+  },
+  "metrics": {
+    "luminance": {
+      "p10": 0.27507,
+      "median": 0.45734,
+      "p90": 0.86275
+    },
+    "chroma": {
+      "mean": 0.05153,
+      "p90": 0.0875
+    },
+    "highlightShare": 0.00931,
+    "shadowShare": 0.01576,
+    "warmCoolBalance": -0.30585
+  },
+  "hsvContext": {
+    "medianSaturation": 0.4074,
+    "p90Saturation": 0.7356,
+    "medianValue": 0.4471,
+    "p90Value": 0.9059,
+    "warmChromaticShare": 0.2667,
+    "coolChromaticShare": 0.3899,
+    "greenChromaticShare": 0.0415
+  },
+  "dominantPalette": [
+    "#1F4457",
+    "#221F1D",
+    "#4A6579",
+    "#5A3C32",
+    "#945D52",
+    "#C7E0EA",
+    "#7091A6",
+    "#CB9C8E",
+    "#D97A5E",
+    "#E4A082"
+  ]
+}
