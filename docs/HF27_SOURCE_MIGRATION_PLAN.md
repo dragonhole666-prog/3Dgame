@@ -10,25 +10,41 @@ The extracted baseline contains approximately:
 
 The size difference is dominated by binary assets such as VRM, GLB and PBR textures.
 
-## Migration policy
+## Non-negotiable runtime boundary
 
-### Phase A — authoritative code first
-Move these into GitHub as ordinary source:
-- src/
-- server/
-- cloudflare/
-- tests/
-- scripts/
-- package-lock.json
-- package.json
-- tsconfig.json
-- Vite / Wrangler / test configuration
-- documentation and license manifests
+The target repository is Babylon.js only.
 
-This makes build logic, rendering logic, gameplay logic and verification rules portable across conversations.
+Do not bulk-copy the HF26 renderer tree into the active branch. Three.js, TSL, React Three Fiber, three-stdlib and renderer compatibility adapters are prohibited. The old archive is an input for behavior and asset migration, not an engine dependency.
 
-### Phase B — reproducible third-party assets
-Do not duplicate freely downloadable third-party binaries when they can be reproduced deterministically.
+`npm run verify:babylon-only` must pass after every migration batch.
+
+## Phase A — port engine-independent code first
+
+Migrate or rewrite:
+- gameplay state and rules
+- inventory / equipment data
+- quests and combat data
+- shared network policy
+- server and Cloudflare worker code that does not depend on the old renderer
+- UI metadata/state whose ownership is engine-independent
+- tests for the above behavior
+
+When an old module mixes gameplay and renderer code, split it. Keep the gameplay contract and rewrite the rendering side against Babylon APIs.
+
+## Phase B — Babylon-native client systems
+
+Port client behavior to:
+- `SceneLoader` / `AssetContainer` for GLB/VRM-capable asset ingestion
+- Babylon cameras and collision ownership
+- Babylon animation groups / skeletons
+- `PBRMaterial` material-role mapping
+- instances / thin instances for repeated environment assets
+- Babylon GUI or DOM UI where appropriate
+- shared placement data for render/collision/navigation/camera obstruction
+
+No temporary dual-renderer bridge is allowed.
+
+## Phase C — reproducible third-party assets
 
 For Quaternius / Poly Haven assets:
 - keep an asset registry
@@ -37,9 +53,8 @@ For Quaternius / Poly Haven assets:
 - record SHA-256 when practical
 - fetch through a versioned bootstrap script
 
-This keeps Git history smaller and makes remote runners reproducible.
+## Phase D — project-owned heavy assets
 
-### Phase C — project-owned heavy assets
 For project-specific VRM/GLB/textures that cannot be reproduced from a public source:
 - keep an explicit manifest and checksum
 - store them in an approved binary distribution location
@@ -47,23 +62,19 @@ For project-specific VRM/GLB/textures that cannot be reproduced from a public so
 - cache them in CI
 - do not silently replace or regenerate them
 
-A storage backend must be chosen before these assets become part of the remote release gate.
-
 ## Current connector constraint
 
-The ChatGPT GitHub connector can create/update repository files and Git objects, but it does not expose a direct "upload this mounted local directory/archive into the repository" operation.
-
-Therefore the migration is being staged rather than pretending the 299 MB project has already been transferred.
+The ChatGPT GitHub connector can create/update repository files and Git objects, but it does not expose a one-shot upload of the mounted ~299 MB archive. Migration therefore remains staged.
 
 ## Completion criteria
 
 Source migration is complete only when:
-1. package-lock.json is present.
-2. src/client/core/game.ts is present.
-3. server/index.ts is present.
-4. cloudflare worker source/config is present.
-5. scripts/verify-current.mjs is present.
-6. tests are present.
-7. remote npm ci succeeds.
-8. typecheck/build/tests succeed in a remote runner.
-9. the remote preview boots using the intended asset manifest.
+1. Babylon-only architecture gate passes.
+2. All required gameplay/server/UI behavior is present without legacy renderer dependencies.
+3. Character/equipment/world assets load through Babylon-native systems.
+4. project-owned binary assets have a reproducible manifest/bootstrap path.
+5. remote typecheck and production build succeed.
+6. automated tests succeed.
+7. fixed-camera visual capture succeeds.
+8. remote preview boots and matches approved reference-look tolerances.
+9. no Three.js/TSL compatibility layer is required anywhere in runtime code.
