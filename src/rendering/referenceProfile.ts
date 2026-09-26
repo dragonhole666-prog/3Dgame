@@ -143,3 +143,21 @@ export const color3=(hex:string)=>Color3.FromHexString(hex);
 export function cloneReferenceProfile(profile:ReferenceLookProfile=P0_REFERENCE_PROFILE):ReferenceLookProfile{
   return JSON.parse(JSON.stringify(profile)) as ReferenceLookProfile;
 }
+
+export function coerceReferenceProfile(raw:unknown):ReferenceLookProfile{
+  const base=cloneReferenceProfile();
+  if(!raw || typeof raw!=='object') return base;
+  const incoming=raw as Partial<ReferenceLookProfile>;
+  return {
+    ...base,
+    ...incoming,
+    version:2,
+    environment:{...base.environment,...(incoming.environment??{})},
+    lighting:{...base.lighting,...(incoming.lighting??{})},
+    foliage:{...base.foliage,...(incoming.foliage??{})},
+    water:{...base.water,...(incoming.water??{})},
+    architecture:{...base.architecture,...(incoming.architecture??{})},
+    post:{...base.post,...(incoming.post??{})}
+  };
+}
+
