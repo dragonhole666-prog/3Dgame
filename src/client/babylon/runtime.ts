@@ -39,7 +39,7 @@ export class BabylonP0Runtime{
     const result=await createQinglanBabylonEngine(canvas);
     const scene=new Scene(result.engine);
     const runtime=new BabylonP0Runtime(host,canvas,scene,result.backend);
-    const world=createBabylonXianxiaWorld(scene,canvas);
+    const world=await createBabylonXianxiaWorld(scene,canvas);
     const post=createBabylonReferencePipeline(scene,world.camera);
     runtime.cleanup.push(()=>post.dispose(),()=>world.dispose());
 
@@ -54,7 +54,7 @@ export class BabylonP0Runtime{
 
     const badge=document.createElement('div');
     badge.id='babylon-p0-status';
-    badge.textContent=`Babylon.js P0 · ${result.backend.toUpperCase()}${result.fallbackReason?' · fallback':''}`;
+    badge.textContent=`Babylon.js HF34 · ${result.backend.toUpperCase()} · ${world.natureMode}${result.fallbackReason?' · backend fallback':''}`;
     Object.assign(badge.style,{position:'fixed',left:'12px',bottom:'12px',zIndex:'9998',padding:'6px 9px',borderRadius:'7px',font:'11px system-ui,sans-serif',color:'#d7edf4',background:'rgba(10,29,39,.68)',border:'1px solid rgba(174,208,221,.22)',pointerEvents:'none'});
     document.body.appendChild(badge);runtime.cleanup.push(()=>badge.remove());
 
@@ -62,7 +62,7 @@ export class BabylonP0Runtime{
     const resize=()=>result.engine.resize();
     window.addEventListener('resize',resize,{passive:true});runtime.cleanup.push(()=>window.removeEventListener('resize',resize));
 
-    console.info('[Babylon P0]',{backend:result.backend,fallbackReason:result.fallbackReason,capture});
+    console.info('[Babylon HF34]',{backend:result.backend,natureMode:world.natureMode,fallbackReason:result.fallbackReason,capture});
     (window as any).__QINGLAN_BABYLON__={runtime,scene,world,post};
     return runtime;
   }
