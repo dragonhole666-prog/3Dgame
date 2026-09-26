@@ -11,28 +11,30 @@ const plan=JSON.parse(
 const outDir='artifacts/hf27-screenshots';
 mkdirSync(outDir,{recursive:true});
 
-for(const capture of plan.captures){
-  test(`P0 visual capture · ${capture.id}`,async({page})=>{
-    await page.goto(capture.url,{waitUntil:'domcontentloaded',timeout:30_000});
+test('P0 fixed-camera visual capture suite',async({page})=>{
+  await page.goto('/?visualCapture=spawn',{waitUntil:'domcontentloaded',timeout:30_000});
 
-    await page.waitForFunction(
-      ()=>document.documentElement.dataset.qinglanReady==='1',
-      undefined,
-      {timeout:30_000}
-    );
+  await page.waitForFunction(
+    ()=>document.documentElement.dataset.qinglanReady==='1',
+    undefined,
+    {timeout:30_000}
+  );
 
-    await page.waitForTimeout(Math.min(plan.settleMs,2_500));
-    await expect(page.locator('#app')).toBeVisible();
+  await expect(page.locator('#app')).toBeVisible();
+  await expect(page.locator('#qinglan-canvas')).toBeVisible();
+  expect(await page.locator('.boot-error').count(),'P0 boot error').toBe(0);
 
-    const bootError=page.locator('.boot-error');
-    expect(await bootError.count(),`boot error on ${capture.id}`).toBe(0);
+  for(const capture of plan.captures){
+    await page.evaluate((id)=>{
+      const app=(window as any).__QINGLAN_BABYLON__;
+      if(!app?.setVisualCapturePreset) throw new Error('Qinglan camera API unavailable');
+      app.setVisualCapturePreset(id);
+    },capture.id);
 
-    const canvas=page.locator('#qinglan-canvas');
-    await expect(canvas).toBeVisible();
-
+    await page.waitForTimeout(650);
     await page.screenshot({
       path:`${outDir}/${capture.id}.png`,
       fullPage:false
     });
-  });
-}
+  }
+});
