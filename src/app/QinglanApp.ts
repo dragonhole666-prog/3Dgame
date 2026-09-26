@@ -58,6 +58,7 @@ export class QinglanApp {
     this.world=world;
 
     const search=new URLSearchParams(location.search);
+    const captureMode=search.has('visualCapture');
     applyVisualCapturePreset(camera,search.get('visualCapture'));
 
     if(search.get('lookdev')==='1'){
@@ -68,16 +69,29 @@ export class QinglanApp {
       });
     }
 
+    if(captureMode){
+      // Headless CI runs on software rendering. Continuous rendering can starve
+      // Playwright commands, so visualCapture mode renders deterministic frames
+      // only when the camera changes.
+      scene.render();
+      scene.render();
+    }else{
+      engine.runRenderLoop(()=>scene.render());
+    }
+
     document.documentElement.dataset.qinglanReady='1';
     document.documentElement.dataset.qinglanRenderer='babylon';
-    console.info('[P0 Babylon] backend=',this.backend);
-    engine.runRenderLoop(()=>scene.render());
+    console.info('[P0 Babylon] backend=',this.backend,'captureMode=',captureMode);
     window.addEventListener('resize',()=>engine.resize(),{passive:true});
   }
 
   setVisualCapturePreset(id:string){
     if(!this.camera) return;
     applyVisualCapturePreset(this.camera,id);
+    if(this.scene){
+      this.scene.render();
+      this.scene.render();
+    }
   }
 
   private applyLook(next:ReferenceLookProfile){
