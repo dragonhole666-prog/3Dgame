@@ -1,6 +1,7 @@
 import {
   ArcRotateCamera,
   Color4,
+  ColorCurves,
   DefaultRenderingPipeline,
   DirectionalLight,
   HemisphericLight,
@@ -50,11 +51,22 @@ export class QinglanApp {
     scene.imageProcessingConfiguration.exposure=this.profile.environment.exposure;
     scene.imageProcessingConfiguration.contrast=this.profile.environment.contrast;
 
-    const camera=new ArcRotateCamera('QinglanHeroCamera',-1.24,1.16,34,new Vector3(0,2.8,4.4),scene);
+    const curves=new ColorCurves();
+    curves.globalSaturation=24;
+    curves.highlightsHue=28;
+    curves.highlightsDensity=8;
+    curves.highlightsSaturation=8;
+    curves.shadowsHue=205;
+    curves.shadowsDensity=9;
+    curves.shadowsSaturation=10;
+    scene.imageProcessingConfiguration.colorCurves=curves;
+    scene.imageProcessingConfiguration.colorCurvesEnabled=true;
+
+    const camera=new ArcRotateCamera('QinglanHeroCamera',-1.43,1.50,30.5,new Vector3(0,1.85,7.0),scene);
     camera.lowerRadiusLimit=12;
     camera.upperRadiusLimit=56;
     camera.lowerBetaLimit=0.72;
-    camera.upperBetaLimit=1.48;
+    camera.upperBetaLimit=1.55;
     camera.wheelDeltaPercentage=0.01;
     camera.panningSensibility=0;
     camera.attachControl(this.canvas,true);
