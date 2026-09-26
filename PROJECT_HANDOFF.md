@@ -48,14 +48,18 @@ GitHub
 - GitHub write access verified for dragonhole666-prog/3Dgame.
 - README.md, AGENTS.md and this handoff document created.
 - Development branch hf27-remote-visual-pipeline created.
+- Draft PR #1 opened for the HF27 bootstrap; it must remain draft until the authoritative source is migrated and browser verification passes.
 - HF27 serializable visual profile added.
 - Runtime Visual LookDev panel added; enable with ?lookdev=1.
 - LookDev controller can tune environment, lights, bloom and cinematic-grade uniforms at runtime.
 - WebGPU capability probe added. WebGL2 remains production renderer until TSL/post-processing parity is reached.
 - HF27 visual baseline profile and screenshot plan added.
 - Playwright visual-capture configuration and capture test scaffold added.
+- Dependency-free PNG perceptual visual-regression analyzer added.
+- Oklab, luminance, chroma, highlight/shadow share and warm/cool-balance thresholds added.
 - Manual GitHub Actions remote visual gate added.
-- HF27 remote-pipeline architecture documentation added.
+- HF27 remote-pipeline and visual-regression documentation added.
+- Authoritative source-migration plan added.
 - Source-import status document added.
 - Local HF26.5 integration baseline was extracted and checked with existing project verifiers.
 
@@ -72,8 +76,18 @@ Not yet verified:
 - Vitest suite
 - Playwright screenshot suite
 - deployed browser preview
+- end-to-end visual-regression comparison against captured browser output
 
 Reason: npm dependency installation did not complete in the local tool environment, so node_modules was not available.
+
+## Source Migration Inventory
+Observed from the extracted HF26.5 baseline:
+- approximately 478 files total
+- approximately 299 MB extracted
+- 337 text/source/config files
+- 1,691,928 bytes of text/source/config content
+
+The size difference is primarily VRM/GLB/PBR and other binary assets.
 
 ## Known Issues
 - Complete HF26.5 source/server/tests/scripts/package-lock/assets are not yet in GitHub.
@@ -84,24 +98,25 @@ Reason: npm dependency installation did not complete in the local tool environme
 - CI remains workflow_dispatch-only until the authoritative source tree is present.
 
 ## Current Work
-Complete the source migration strategy, then make screenshot capture deterministic and deploy the first remote preview.
+Transfer the authoritative code tree, then wire deterministic screenshot cameras and deploy the first real remote preview.
 
 ## Next Actions
 1. Transfer authoritative text/source tree into GitHub: src, server, cloudflare worker, tests, scripts, package-lock and project configs.
-2. Externalize/reprovision large third-party and generated binary assets instead of treating all of them as ordinary Git blobs.
-3. Implement deterministic visualCapture camera/state presets for Spawn, Bridge, Pavilion, Forest, Character Front/Back, Equipment Closeup and Combat.
-4. Run npm ci, typecheck, build, Vitest and Playwright in a real remote runner.
-5. Deploy first remote preview and validate ?lookdev=1 against the real browser render.
-6. Add visual comparison metrics: Oklab distance, hue/chroma distribution, luminance percentiles, clipping ratios and cool/warm separation.
-7. Begin staged TSL material/post migration; keep WebGL2 fallback until visual-regression parity is proven.
-8. Enable pull-request CI only after the authoritative source tree is complete.
+2. Externalize/reprovision large third-party assets through versioned asset registries and verified bootstrap scripts.
+3. Choose storage/bootstrap handling for project-owned large VRM/GLB/PBR assets that cannot be reproduced from public sources.
+4. Implement deterministic visualCapture camera/state presets for Spawn, Bridge, Pavilion, Forest, Character Front/Back, Equipment Closeup and Combat.
+5. Run npm ci, typecheck, build, Vitest and Playwright in a real remote runner.
+6. Deploy first remote preview and validate ?lookdev=1 against the real browser render.
+7. Connect captured PNGs to the HF27 perceptual visual-regression analyzer and approve initial reference baselines.
+8. Begin staged TSL material/post migration; keep WebGL2 fallback until visual-regression parity is proven.
+9. Enable pull-request CI only after the authoritative source tree is complete.
 
 ## Cross-Conversation Resume Instruction
 In any new ChatGPT conversation:
 1. Open this repository.
 2. Read AGENTS.md.
 3. Read PROJECT_HANDOFF.md.
-4. Inspect the active branch and latest commits.
+4. Inspect the active branch and latest commits / draft PR.
 5. Continue from Current Work and Next Actions.
 6. Do not claim a verification passed unless its actual output was observed.
 
