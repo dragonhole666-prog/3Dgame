@@ -44,7 +44,8 @@
     "visual:lookdev": "node scripts/dev.mjs",
     "dev:babylon": "vite --host 127.0.0.1 --mode babylon",
     "build:babylon": "tsc --noEmit && vite build --mode babylon",
-    "visual:evaluate": "node scripts/p0-evaluate-captures.mjs"
+    "visual:evaluate": "node scripts/p0-evaluate-captures.mjs",
+    "verify:p0:babylon": "node scripts/verify-p0-babylon-source.mjs"
   },
   "dependencies": {
     "@babylonjs/core": "9.28.0",
