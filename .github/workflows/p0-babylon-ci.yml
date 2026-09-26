@@ -64,6 +64,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Capture fixed Babylon visual cameras
         run: npm run visual:capture
+      - name: Evaluate captures against reference style metrics
+        run: npm run visual:evaluate
       - uses: actions/upload-artifact@v4
         if: always()
         with:
