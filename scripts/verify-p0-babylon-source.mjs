@@ -16,7 +16,8 @@ const required=[
  'src/shared/data/hf265-world-layout.ts','server/index.ts',
  'cloudflare/world-worker/src/index.js','cloudflare/world-worker/wrangler.jsonc',
  'scripts/verify-current.mjs','tests/hf27-visual-capture.spec.ts',
- 'config/p0-reference-metrics.json'
+ 'config/p0-reference-metrics.json',
+ 'tests/babylon-reference-hf34.test.ts','README_P0.26.8_HF34_Babylon參考圖LookDev鎖定.txt'
 ];
 for(const p of required)must(exists(p),'required source exists: '+p);
 
@@ -32,6 +33,13 @@ const main=read('src/main.ts');
 must(main.includes("??'babylon'"),'Babylon is default runtime');
 must(main.includes("requested==='three'"),'legacy Three fallback is explicit');
 must(main.includes("import('./client/babylon/runtime')"),'Babylon runtime is lazy-loaded');
+const reference=read('src/client/babylon/reference-style.ts');
+const pipeline=read('src/client/babylon/rendering/reference-pipeline.ts');
+const world=read('src/client/babylon/world/xianxia-world.ts');
+must(reference.includes('hf34-babylon-lock'),'HF34 reference profile is active');
+must(pipeline.includes('TONEMAPPING_ACES'),'HF34 Babylon pipeline owns ACES');
+must(world.includes('SceneLoader.ImportMeshAsync'),'HF34 Babylon world prefers Quaternius glTF geometry');
+must(world.includes('MirrorTexture'),'HF34 Babylon world owns reflective lake rendering');
 
 const engine=read('src/client/babylon/engine.ts');
 must(engine.includes('WebGPUEngine'),'WebGPU engine path exists');
