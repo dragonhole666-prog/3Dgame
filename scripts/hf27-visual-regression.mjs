@@ -59,13 +59,58 @@ function comparePixels(ref,candidate,maxSamples=90000){
 }
 
 function args(argv){const out={};for(let i=2;i<argv.length;i++){if(argv[i].startsWith('--'))out[argv[i].slice(2)]=argv[++i];}return out;}
+
+function metricDelta(reference,actual){
+ return {
+  luminanceP10:Math.abs(actual.luminance.p10-reference.luminance.p10),
+  luminanceMedian:Math.abs(actual.luminance.median-reference.luminance.median),
+  luminanceP90:Math.abs(actual.luminance.p90-reference.luminance.p90),
+  chromaMean:Math.abs(actual.chroma.mean-reference.chroma.mean),
+  chromaP90:Math.abs(actual.chroma.p90-reference.chroma.p90),
+  highlightShare:Math.abs(actual.highlightShare-reference.highlightShare),
+  shadowShare:Math.abs(actual.shadowShare-reference.shadowShare),
+  warmCoolBalance:Math.abs(actual.warmCoolBalance-reference.warmCoolBalance),
+ };
+}
+
 const cli=args(process.argv);
-if(!cli.reference||!cli.candidate){console.error('Usage: node scripts/hf27-visual-regression.mjs --reference reference.png --candidate candidate.png [--thresholds config/hf27-visual-thresholds.json] [--json report.json]');process.exit(2);}
-const [refBuf,candidateBuf]=await Promise.all([readFile(cli.reference),readFile(cli.candidate)]);const ref=decodePng(refBuf),candidate=decodePng(candidateBuf);
-const [refSamples,candidateSamples]=[sampleImage(ref),sampleImage(candidate)],reference=metrics(refSamples),actual=metrics(candidateSamples);
-const delta={oklabMean:comparePixels(ref,candidate),luminanceMedian:Math.abs(actual.luminance.median-reference.luminance.median),chromaMean:Math.abs(actual.chroma.mean-reference.chroma.mean),highlightShare:Math.abs(actual.highlightShare-reference.highlightShare),shadowShare:Math.abs(actual.shadowShare-reference.shadowShare),warmCoolBalance:Math.abs(actual.warmCoolBalance-reference.warmCoolBalance)};
-let thresholds={oklabMean:.16,luminanceMedian:.10,chromaMean:.07,highlightShare:.09,shadowShare:.09,warmCoolBalance:.36};
+if(!cli.candidate||(!cli.reference&&!cli.target)){
+ console.error('Usage: node scripts/hf27-visual-regression.mjs --candidate candidate.png (--reference reference.png | --target config/p0-reference-metrics.json) [--thresholds config/hf27-visual-thresholds.json] [--json report.json]');
+ process.exit(2);
+}
+
+const candidate=decodePng(await readFile(cli.candidate));
+const actual=metrics(sampleImage(candidate));
+let reference,referenceInfo,delta;
+
+if(cli.reference){
+ const ref=decodePng(await readFile(cli.reference));
+ reference=metrics(sampleImage(ref));
+ delta={oklabMean:comparePixels(ref,candidate),...metricDelta(reference,actual)};
+ referenceInfo={mode:'image',path:cli.reference,width:ref.width,height:ref.height,metrics:reference};
+}else{
+ const target=JSON.parse(await readFile(cli.target,'utf8'));
+ reference=target.metrics??target;
+ delta=metricDelta(reference,actual);
+ referenceInfo={mode:'target-profile',path:cli.target,metrics:reference};
+}
+
+let thresholds={
+ oklabMean:.16,
+ luminanceP10:.10,
+ luminanceMedian:.10,
+ luminanceP90:.10,
+ chromaMean:.07,
+ chromaP90:.09,
+ highlightShare:.09,
+ shadowShare:.09,
+ warmCoolBalance:.36,
+};
 if(cli.thresholds)thresholds={...thresholds,...JSON.parse(await readFile(cli.thresholds,'utf8'))};
-const checks=Object.fromEntries(Object.entries(delta).map(([key,value])=>[key,{value,limit:thresholds[key],pass:value<=thresholds[key]}]));const pass=Object.values(checks).every((x)=>x.pass);
-const report={version:1,reference:{path:cli.reference,width:ref.width,height:ref.height,metrics:reference},candidate:{path:cli.candidate,width:candidate.width,height:candidate.height,metrics:actual},checks,pass};
-const json=JSON.stringify(report,null,2);console.log(json);if(cli.json)await writeFile(cli.json,json+'\n');process.exitCode=pass?0:1;
+const checks=Object.fromEntries(Object.entries(delta).map(([key,value])=>[key,{value,limit:thresholds[key],pass:value<=thresholds[key]}]));
+const pass=Object.values(checks).every((x)=>x.pass);
+const report={version:2,reference:referenceInfo,candidate:{path:cli.candidate,width:candidate.width,height:candidate.height,metrics:actual},checks,pass};
+const json=JSON.stringify(report,null,2);
+console.log(json);
+if(cli.json)await writeFile(cli.json,json+'\n');
+process.exitCode=pass?0:1;
