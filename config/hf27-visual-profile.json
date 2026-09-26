@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "P0 Reference Match v2.1 · Saturation/Depth Pass",
+  "name": "P0 Reference Match v2.2 · Coral/Water Balance",
   "environment": {
     "clearColor": "#A8D9EB",
     "fogColor": "#8EB9C9",
@@ -24,30 +24,30 @@
     "warmRimIntensity": 0.25
   },
   "foliage": {
-    "mapleShadow": "#3C1718",
-    "mapleBase": "#7B231F",
-    "mapleLit": "#C24932",
-    "mapleHighlight": "#ED8460",
+    "mapleShadow": "#4A1416",
+    "mapleBase": "#A12B22",
+    "mapleLit": "#E55A3B",
+    "mapleHighlight": "#FFAD82",
     "grassShadow": "#1F3329",
     "grassBase": "#38523C",
     "grassLit": "#6B8056"
   },
   "water": {
-    "deep": "#0A2B45",
-    "shallow": "#165C7A",
-    "reflection": 1.12,
-    "roughness": 0.11,
+    "deep": "#061F35",
+    "shallow": "#0E405D",
+    "reflection": 0.82,
+    "roughness": 0.14,
     "alpha": 0.88,
     "normalStrength": 0.28
   },
   "architecture": {
-    "woodDeep": "#211411",
-    "woodBase": "#4A271D",
-    "woodLit": "#8B563D",
+    "woodDeep": "#2A1712",
+    "woodBase": "#653326",
+    "woodLit": "#A66A4A",
     "roofDeep": "#253A44",
     "roofLit": "#526B78",
-    "stoneDeep": "#3E4A4D",
-    "stoneLit": "#9A9587"
+    "stoneDeep": "#50585A",
+    "stoneLit": "#AAA69A"
   },
   "post": {
     "bloomWeight": 0.07,
@@ -55,10 +55,10 @@
     "bloomKernel": 36,
     "vignetteWeight": 0.55,
     "vignetteStretch": 0.18,
-    "saturation": 15,
+    "saturation": 18,
     "highlightsHue": 28,
-    "highlightsDensity": 10,
-    "highlightsSaturation": 8,
+    "highlightsDensity": 12,
+    "highlightsSaturation": 10,
     "shadowsHue": 205,
     "shadowsDensity": 9,
     "shadowsSaturation": 10,
