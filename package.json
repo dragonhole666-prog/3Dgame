@@ -40,6 +40,7 @@
     "art:reference:analyze": "python scripts/reference-style-analyze.py",
     "assets:quaternius:hf265": "node scripts/fetch-quaternius-hf265.mjs",
     "visual:capture": "npx --yes @playwright/test@1.55.0 test tests/hf27-visual-capture.spec.ts --config=playwright.hf27.config.ts",
+    "visual:compare": "node scripts/hf27-visual-regression.mjs",
     "visual:lookdev": "node scripts/dev.mjs"
   },
   "dependencies": {
