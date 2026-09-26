@@ -21,6 +21,7 @@ export interface P0WorldRuntime {
 type P0Materials={
   ground:PBRMaterial;
   grass:PBRMaterial;
+  lakeDeep:PBRMaterial;
   water:PBRMaterial;
   wood:PBRMaterial;
   roof:PBRMaterial;
@@ -54,6 +55,7 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
   return {
     ground:pbr('P0_GroundMaterial',scene,'#65765A',0.96),
     grass:pbr('P0_GrassMaterial',scene,profile.foliage.grassBase,0.92),
+    lakeDeep:pbr('P0_LakeDeepMaterial',scene,profile.water.deep,0.98),
     water,
     wood:pbr('P0_WoodMaterial',scene,profile.architecture.woodBase,0.72),
     roof:pbr('P0_RoofMaterial',scene,profile.architecture.roofDeep,0.62),
@@ -265,6 +267,30 @@ export function createP0ReferenceWorld(scene:Scene,sun:DirectionalLight,profile:
   createFlowerBand(scene,9.6,1.0,7,40);
   createFlowerBand(scene,0,13.0,12,52);
 
+  const lakeBed=MeshBuilder.CreateGround('P0_LakeBed',{width:30,height:27,subdivisions:2},scene);
+  lakeBed.position.set(0,.015,2.4);
+  lakeBed.material=materials.lakeDeep;
+  lakeBed.receiveShadows=true;
+
+  const mistMaterial=new StandardMaterial('P0_MistMaterial',scene);
+  mistMaterial.diffuseColor=color3('#B7D4DE');
+  mistMaterial.emissiveColor=color3('#9EC7D5');
+  mistMaterial.alpha=.075;
+  mistMaterial.disableLighting=true;
+  mistMaterial.backFaceCulling=false;
+  [
+    [-3.8,1.05,8.2,4.8,1.25],
+    [2.2,.9,9.6,3.9,1.0],
+    [6.8,1.2,11.8,4.2,1.15],
+    [-8.0,.8,12.2,3.2,.9]
+  ].forEach(([x,y,z,sx,sz],index)=>{
+    const mist=MeshBuilder.CreateSphere('P0_Mist',{diameter:2,segments:12},scene);
+    mist.position.set(x,y,z);
+    mist.scaling.set(sx,.22,sz);
+    mist.material=mistMaterial;
+    mist.visibility=.82-index*.08;
+  });
+
   const water=MeshBuilder.CreateGround('P0_Lake',{width:30,height:27,subdivisions:32},scene);
   water.position.set(0,.08,2.4);
   water.material=materials.water;
@@ -283,6 +309,7 @@ export function createP0ReferenceWorld(scene:Scene,sun:DirectionalLight,profile:
     materials.mapleBase.albedoColor=color3(next.foliage.mapleBase);
     materials.mapleLit.albedoColor=color3(next.foliage.mapleLit);
     materials.mapleHighlight.albedoColor=color3(next.foliage.mapleHighlight);
+    materials.lakeDeep.albedoColor=color3(next.water.deep);
     materials.water.albedoColor=color3(next.water.shallow);
     materials.water.roughness=next.water.roughness;
     materials.water.alpha=next.water.alpha;
