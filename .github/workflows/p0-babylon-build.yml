@@ -4,7 +4,13 @@ on:
   push:
     branches:
       - hf27-remote-visual-pipeline
+    paths-ignore:
+      - '**/*.md'
   workflow_dispatch:
+
+concurrency:
+  group: p0-babylon-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
