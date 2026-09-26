@@ -6,6 +6,7 @@ on:
       - p0-babylon-migration
     paths:
       - '.bootstrap/hf265-source-bootstrap.zip'
+      - '.bootstrap/hf265-source-supplement.zip'
       - '.bootstrap/import.trigger'
       - '.github/workflows/p0-source-import.yml'
   workflow_dispatch:
@@ -27,6 +28,7 @@ jobs:
         run: |
           test -f .bootstrap/hf265-source-bootstrap.zip
           unzip -n .bootstrap/hf265-source-bootstrap.zip -d .
+          if [ -f .bootstrap/hf265-source-supplement.zip ]; then unzip -n .bootstrap/hf265-source-supplement.zip -d .; fi
 
       - uses: actions/setup-node@v4
         with:
