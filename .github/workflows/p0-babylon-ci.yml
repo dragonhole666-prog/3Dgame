@@ -40,8 +40,8 @@ jobs:
         run: npm run typecheck
       - name: Build
         run: npm run build
-      - name: Package integrity
-        run: npm run verify:package
+      - name: Babylon source integrity
+        run: npm run verify:p0:babylon
       - name: Current project verification
         run: npm run verify:current
       - name: Unit tests
