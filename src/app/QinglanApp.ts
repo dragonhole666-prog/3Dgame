@@ -70,11 +70,11 @@ export class QinglanApp {
     }
 
     if(captureMode){
-      // Headless CI runs on software rendering. Continuous rendering can starve
-      // Playwright commands, so visualCapture mode renders deterministic frames
-      // only when the camera changes.
-      scene.render();
-      scene.render();
+      // Headless CI runs on software rendering. Wait for Babylon material/shader
+      // readiness, then render a short deterministic warm-up instead of running
+      // a permanent loop that starves Playwright.
+      await scene.whenReadyAsync();
+      for(let frame=0;frame<4;frame++) scene.render();
     }else{
       engine.runRenderLoop(()=>scene.render());
     }
