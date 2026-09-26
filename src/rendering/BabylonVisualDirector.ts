@@ -12,7 +12,7 @@ import {
 import { color3, type ReferenceLookProfile } from './referenceProfile';
 
 function toColor4(hex:string){
-  const c=color3(hex);
+  const c=color3(hex).toLinearSpace();
   return new Color4(c.r,c.g,c.b,1);
 }
 
