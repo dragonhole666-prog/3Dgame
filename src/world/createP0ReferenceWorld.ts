@@ -151,7 +151,7 @@ function createSkyBackdrop(scene:Scene){
 function createWaterNormalTexture(scene:Scene){
   const size=128;
   const texture=new DynamicTexture('P0_WaterNormal',{width:size,height:size},scene,false);
-  const ctx=texture.getContext();
+  const ctx=texture.getContext() as unknown as CanvasRenderingContext2D;
   const image=ctx.createImageData(size,size);
 
   for(let y=0;y<size;y++){
