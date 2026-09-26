@@ -9,10 +9,11 @@ export interface QinglanEngineResult {
 
 export async function createQinglanEngine(canvas:HTMLCanvasElement):Promise<QinglanEngineResult>{
   const nav=navigator as Navigator & { gpu?: unknown };
+
   if(window.isSecureContext && nav.gpu){
     try{
       const engine=new WebGPUEngine(canvas,{
-        antialiasing:true,
+        antialias:true,
         adaptToDeviceRatio:true,
         enableAllFeatures:false
       });
