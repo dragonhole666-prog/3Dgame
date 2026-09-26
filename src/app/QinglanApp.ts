@@ -109,6 +109,11 @@ export class QinglanApp {
     window.addEventListener('resize',()=>engine.resize(),{passive:true});
   }
 
+  setVisualCapturePreset(id:string){
+    if(!this.camera) return;
+    applyVisualCapturePreset(this.camera,id);
+  }
+
   private applyLook(next:ReferenceLookProfile){
     this.profile=cloneReferenceProfile(next);
     const scene=this.scene;
