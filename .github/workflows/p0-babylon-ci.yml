@@ -1,0 +1,41 @@
+name: P0 Babylon Build Gate
+
+on:
+  push:
+    branches:
+      - p0-babylon-migration
+    paths:
+      - 'src/**'
+      - 'server/**'
+      - 'cloudflare/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'vite.config.ts'
+      - 'playwright.hf27.config.ts'
+      - '.github/workflows/p0-babylon-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: p0-babylon-migration
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
