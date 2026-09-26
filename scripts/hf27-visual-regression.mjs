@@ -113,4 +113,4 @@ const report={version:2,reference:referenceInfo,candidate:{path:cli.candidate,wi
 const json=JSON.stringify(report,null,2);
 console.log(json);
 if(cli.json)await writeFile(cli.json,json+'\n');
-process.exitCode=pass?0:1;
+process.exitCode=(pass||cli['report-only']==='1')?0:1;
