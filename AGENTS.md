@@ -12,7 +12,7 @@ Build and maintain a browser-based 3D xianxia game with a remote-first productio
 - Remote preview deployment
 - Automated build / screenshot / visual-regression pipeline
 
-Three.js / TSL is no longer the target runtime architecture for new P0 work. Do not add new Three.js rendering code unless it is part of a temporary migration adapter that is explicitly marked for removal.
+Babylon.js is the only runtime 3D engine. Three.js, TSL, React Three Fiber, three-stdlib and renderer compatibility adapters are prohibited. Port needed behavior to Babylon-native systems instead of retaining a dual-engine bridge. `npm run verify:babylon-only` is a mandatory architecture gate.
 
 ## P0 Visual Target
 The supplied reference image is the primary art-direction target for P0.
@@ -89,7 +89,8 @@ Every imported external asset must record source, license and target path.
 - Repeated foliage / rocks / props should use instances or thin instances where practical.
 - World placement, collision, navigation obstruction and camera collision should derive from shared placement data.
 - Do not reintroduce the legacy uploaded-map pipeline.
-- Do not reintroduce Three.js as the primary renderer.
+- Do not introduce Three.js, TSL, React Three Fiber, three-stdlib, or any dual-renderer compatibility layer.
+- All rendering, materials, cameras, lights, shadows, post-processing, asset loading and scene ownership must remain Babylon-native.
 
 ## Git Workflow
 - main = stable baseline
