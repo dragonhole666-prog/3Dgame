@@ -68,8 +68,8 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
   water.clearCoat.intensity=.62;
   water.clearCoat.roughness=.10;
 
-  const mountainNear=pbr('P0_MountainNear',scene,'#547386',.96,0,.28);
-  const mountainFar=pbr('P0_MountainFar',scene,'#7998A9',1,0,.18);
+  const mountainNear=pbr('P0_MountainNear',scene,'#486D80',.96,0,.28);
+  const mountainFar=pbr('P0_MountainFar',scene,'#6C96AA',1,0,.18);
 
   const mapleShadow=pbr('P0_MapleShadow',scene,profile.foliage.mapleShadow,.86,0,.54);
   const mapleBase=pbr('P0_MapleBase',scene,profile.foliage.mapleBase,.82,0,.58);
@@ -91,7 +91,7 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
   }
 
   return {
-    ground:pbr('P0_GroundMaterial',scene,'#405044',.96,0,.48),
+    ground:pbr('P0_GroundMaterial',scene,profile.foliage.grassShadow,.96,0,.48),
     grassShadow:pbr('P0_GrassShadowMaterial',scene,profile.foliage.grassShadow,.93,0,.48),
     grass:pbr('P0_GrassMaterial',scene,profile.foliage.grassBase,.90,0,.52),
     grassLit:pbr('P0_GrassLitMaterial',scene,profile.foliage.grassLit,.88,0,.56),
@@ -122,9 +122,9 @@ function createSkyBackdrop(scene:Scene){
   const texture=new DynamicTexture('P0_SkyGradient',{width:32,height:512},scene,false);
   const ctx=texture.getContext();
   const gradient=ctx.createLinearGradient(0,0,0,512);
-  gradient.addColorStop(0,'#B8DDEB');
-  gradient.addColorStop(.48,'#CFE7F2');
-  gradient.addColorStop(1,'#E6EFF2');
+  gradient.addColorStop(0,'#72C7EB');
+  gradient.addColorStop(.48,'#A8DAED');
+  gradient.addColorStop(1,'#D8E8EC');
   ctx.fillStyle=gradient;
   ctx.fillRect(0,0,32,512);
   texture.update(false);
@@ -316,19 +316,19 @@ function createMaple(
     new Vector3(x-1.38*scale,5.16*scale,z-.42*scale)
   ];
 
-  for(let i=0;i<24;i++){
+  for(let i=0;i<28;i++){
     const center=centers[i%centers.length];
-    const angle=i/24*Math.PI*2+variant*.41;
+    const angle=i/28*Math.PI*2+variant*.41;
     const radius=(.28+noise(variant+2,i)*1.04)*scale;
     const yLift=(noise(variant+5,i)-.38)*1.02*scale;
-    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.70*scale,subdivisions:2},scene);
+    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.74*scale,subdivisions:3},scene);
     blob.position.set(
       center.x+Math.cos(angle)*radius,
       center.y+yLift,
       center.z+Math.sin(angle)*radius*.70
     );
-    const size=.68+noise(variant+9,i)*.58;
-    blob.scaling.set(size*1.32,size*.68,size);
+    const size=.72+noise(variant+9,i)*.62;
+    blob.scaling.set(size*1.38,size*.72,size*1.06);
     blob.rotation.set(noise(variant,80+i)*.45,angle,noise(variant,120+i)*.38);
     blob.material=foliageMaterials[(i+variant)%foliageMaterials.length];
     blob.receiveShadows=true;
@@ -513,7 +513,7 @@ export function createP0ReferenceWorld(
 
   sun.shadowMinZ=1;
   sun.shadowMaxZ=110;
-  const shadow=new CascadedShadowGenerator(2048,sun);
+  const shadow=new CascadedShadowGenerator(1536,sun);
   shadow.numCascades=4;
   shadow.lambda=.72;
   shadow.bias=.0008;
@@ -558,8 +558,8 @@ export function createP0ReferenceWorld(
   createPavilion(scene,materials,shadow,8.8,13.2,.72);
 
   const maples=[
-    [-13.5,4.8,1.48,2],[-8.0,11.0,1.14,1],[-15.2,13.8,1.18,3],
-    [10.4,4.8,1.58,0],[14.8,8.4,1.12,2],[11.8,13.6,.94,1],
+    [-13.5,4.8,1.62,2],[-8.0,11.0,1.14,1],[-15.2,13.8,1.18,3],
+    [10.4,4.8,1.76,0],[14.8,8.4,1.12,2],[11.8,13.6,.94,1],
     [-3.8,15.3,.88,2],[4.2,15.4,.94,0]
   ] as const;
   maples.forEach(([x,z,s,v])=>createMaple(scene,materials,shadow,x,z,s,v));
@@ -570,13 +570,13 @@ export function createP0ReferenceWorld(
   createShoreRocks(scene,materials,shadow);
 
   const lakeBed=MeshBuilder.CreateDisc('P0_LakeBed',{
-    radius:17,
-    tessellation:80,
+    radius:25,
+    tessellation:96,
     sideOrientation:Mesh.DOUBLESIDE
   },scene);
   lakeBed.rotation.x=Math.PI*.5;
-  lakeBed.scaling.y=.80;
-  lakeBed.position.set(0,.015,4.1);
+  lakeBed.scaling.y=.88;
+  lakeBed.position.set(0,.015,5.0);
   lakeBed.material=materials.lakeDeep;
   lakeBed.receiveShadows=true;
 
@@ -606,17 +606,17 @@ export function createP0ReferenceWorld(
   materials.water.bumpTexture=waterNormal;
 
   const water=MeshBuilder.CreateDisc('P0_Lake',{
-    radius:17,
-    tessellation:112,
+    radius:25,
+    tessellation:128,
     sideOrientation:Mesh.DOUBLESIDE
   },scene);
   water.rotation.x=Math.PI*.5;
-  water.scaling.y=.80;
-  water.position.set(0,.09,4.1);
+  water.scaling.y=.88;
+  water.position.set(0,.09,5.0);
   water.material=materials.water;
   water.receiveShadows=true;
 
-  const mirror=new MirrorTexture('P0_WaterMirror',1024,scene,true);
+  const mirror=new MirrorTexture('P0_WaterMirror',768,scene,true);
   mirror.mirrorPlane=new Plane(0,-1,0,.10);
   mirror.level=profile.water.reflection;
   mirror.adaptiveBlurKernel=20;
