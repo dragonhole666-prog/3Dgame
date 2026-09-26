@@ -1,0 +1,2 @@
+import {describe,expect,it} from 'vitest';import {XIANXIA_GRADIENTS} from '../src/client/rendering/xianxia-visual-style';import {HF265Terrain} from '../src/client/world/hf265-terrain';import {HF265HorizonMountains} from '../src/client/world/hf265-horizon-mountains';
+describe('HF26.5 Node-safe rendering module imports',()=>{it('imports reboot art modules without browser document side effects',()=>{expect(XIANXIA_GRADIENTS.water.length).toBeGreaterThan(3);expect(typeof HF265Terrain).toBe('function');expect(typeof HF265HorizonMountains).toBe('function');});});

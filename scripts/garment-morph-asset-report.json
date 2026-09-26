@@ -1,0 +1,86 @@
+{
+  "bakeVersion": "HF5",
+  "generatedAt": "2026-09-22T14:50:32.050Z",
+  "assets": [
+    {
+      "file": "linen_robe.glb",
+      "meshes": 41,
+      "vertices": 4165,
+      "generated": 217
+    },
+    {
+      "file": "cloud_robe.glb",
+      "meshes": 41,
+      "vertices": 4165,
+      "generated": 217
+    },
+    {
+      "file": "thunder_armor.glb",
+      "meshes": 91,
+      "vertices": 5114,
+      "generated": 451
+    },
+    {
+      "file": "snow_fashion.glb",
+      "meshes": 5,
+      "vertices": 561,
+      "generated": 29
+    },
+    {
+      "file": "linen_legs.glb",
+      "meshes": 2,
+      "vertices": 90,
+      "generated": 10
+    },
+    {
+      "file": "scale_legs.glb",
+      "meshes": 2,
+      "vertices": 90,
+      "generated": 10
+    },
+    {
+      "file": "linen_boots.glb",
+      "meshes": 2,
+      "vertices": 138,
+      "generated": 6
+    },
+    {
+      "file": "cloud_boots.glb",
+      "meshes": 2,
+      "vertices": 138,
+      "generated": 6
+    },
+    {
+      "file": "thunder_boots.glb",
+      "meshes": 2,
+      "vertices": 138,
+      "generated": 6
+    },
+    {
+      "file": "cloth_wrists.glb",
+      "meshes": 2,
+      "vertices": 90,
+      "generated": 6
+    },
+    {
+      "file": "thunder_bracers.glb",
+      "meshes": 2,
+      "vertices": 90,
+      "generated": 6
+    },
+    {
+      "file": "woven_belt.glb",
+      "meshes": 1,
+      "vertices": 279,
+      "generated": 5
+    },
+    {
+      "file": "thunder_belt.glb",
+      "meshes": 1,
+      "vertices": 279,
+      "generated": 5
+    }
+  ],
+  "totalAssets": 13,
+  "totalGeneratedMorphBindings": 974
+}

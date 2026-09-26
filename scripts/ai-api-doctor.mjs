@@ -1,0 +1,10 @@
+import {apiConfig,parseArgs} from './ai-api-common.mjs';
+const args=parseArgs(process.argv.slice(2));
+const {base,token}=apiConfig(args);
+const release=await fetch(`${base}/api/release`).then(async r=>({ok:r.ok,status:r.status,text:await r.text()}));
+if(!release.ok)throw new Error(`Worker release endpoint failed: ${release.status} ${release.text}`);
+const probe=await fetch(`${base}/api/art/generate-texture`,{method:'POST',headers:{'Content-Type':'application/json','X-Qinglan-Art-Token':token},body:JSON.stringify({prompt:'seamless neutral gray stone PBR texture test',width:512,height:512,steps:4,seed:1})});
+if(!probe.ok)throw new Error(`Workers AI probe failed: ${probe.status} ${await probe.text()}`);
+console.log('AI API DOCTOR: PASS');
+console.log(`endpoint=${base}`);
+console.log(`content-type=${probe.headers.get('content-type')}`);

@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8'),must=(ok,msg)=>{if(!ok)throw new Error(`HF9 EDITOR IMPORT FAIL: ${msg}`);console.log('PASS ',msg)};
+const editor=read('src/editor/editor.ts'),server=read('server/index.ts'),pipeline=read('server/equipment-import.ts'),curated=read('src/client/character/curated-equipment.ts'),equipment=read('src/shared/data/equipment.ts'),generated=read('src/shared/data/editor-equipment.generated.ts'),sync=read('scripts/sync-equipment-fit-modules.mjs'),pkg=JSON.parse(read('package.json'));
+must(/editor-import-glb/.test(editor)&&/type="file"/.test(editor)&&/accept="\.glb/.test(editor),'world editor exposes a one-click GLB file picker');
+must(/\/api\/editor\/import-equipment/.test(editor)&&/x-file-name/.test(editor),'editor uploads the selected GLB directly to the local import API');
+must(/localEditorRequest/.test(server)&&/api\/editor\/import-equipment/.test(server)&&/x-editor-key/.test(server),'GLB import API remains local-editor-only and editor-key protected');
+must(/analyzeEquipmentGlb/.test(pipeline)&&/inferSlot/.test(pipeline)&&/SLOT_TOKENS/.test(pipeline),'server analyzes GLB and infers equipment slot without hand-authored metadata');
+must(/skinned-rebind/.test(pipeline)&&/rigid-auto-rig/.test(pipeline)&&/rigid-attachment/.test(pipeline),'import analysis selects skinned rebind, body auto-rig or rigid attachment strategy');
+must(/createImportedEquipmentRecords/.test(pipeline)&&/appearanceId/.test(pipeline)&&/\/assets\/equipment\/modules\//.test(pipeline),'import creates complete item/appearance metadata and canonical module URL');
+must(/syncEditorEquipmentRegistry/.test(server)&&/editor-equipment-registry\.json/.test(pipeline)&&/EDITOR_IMPORTED_ITEMS/.test(equipment)&&/EDITOR_IMPORTED_APPEARANCES/.test(equipment),'imported metadata is persisted without rewriting watched TypeScript during the live request');
+must(/editor-equipment-registry\.json/.test(sync)&&/editor-equipment\.generated\.ts/.test(sync)&&pkg.scripts?.predev&&pkg.scripts?.prebuild&&pkg.scripts?.pretest&&pkg.scripts?.prestart,'controlled pre-scripts materialize imported metadata for restart/build/test/deploy');
+must(/persistImportedEquipmentAsset/.test(server)&&/\.fit\.json/.test(pipeline)&&/dist\/assets\/equipment\/modules/.test(pipeline),'import persists GLB, HF9 fit sidecar and hot built-server asset copy');
+must(/automaticGlbFitDefinition/.test(curated)&&/isBodyFitSlot/.test(curated)&&/autoOrientWeapon/.test(curated),'runtime auto-resolves imported body garments and imported rigid weapons/accessories');
+must(/HF9 local editor import pipeline/.test(generated),'empty/generated editor equipment registry is packaged');
+must(fs.existsSync(path.join(root,'tests/editor-equipment-import-hf9.test.ts')),'HF9 one-click editor import regression test is packaged');
+console.log('HF9 EDITOR EQUIPMENT IMPORT VERIFICATION: PASS');

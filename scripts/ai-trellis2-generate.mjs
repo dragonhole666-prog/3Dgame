@@ -1,0 +1,23 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {parseArgs,ensureParent} from './ai-api-common.mjs';
+
+const args=parseArgs(process.argv.slice(2));
+const image=path.resolve(String(args.image||args._[0]||''));
+if(!fs.existsSync(image))throw new Error('用法：node scripts/ai-trellis2-generate.mjs --image concept.png --id pavilion --x -15 --y 0 --z -14');
+const id=String(args.id||path.basename(image,path.extname(image))).replace(/[^A-Za-z0-9_-]/g,'-');
+const api=String(args.endpoint||process.env.TRELLIS2_API||'http://127.0.0.1:7861').replace(/\/$/,'');
+const form=new FormData();
+form.append('image',new Blob([fs.readFileSync(image)]),path.basename(image));
+form.append('resolution',String(args.resolution||'1024'));
+form.append('seed',String(args.seed||20260925));
+form.append('decimation_target',String(args.faces||220000));
+form.append('texture_size',String(args.texture||2048));
+const response=await fetch(`${api}/generate`,{method:'POST',body:form});
+if(!response.ok)throw new Error(`TRELLIS.2 API ${response.status}: ${(await response.text()).slice(0,800)}`);
+const root=path.resolve('public/assets/ai-models');
+const glbPath=path.join(root,`${id}.glb`);ensureParent(glbPath);fs.writeFileSync(glbPath,new Uint8Array(await response.arrayBuffer()));
+const manifestPath=path.join(root,'manifest.json');const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+const entry={id,asset:`/assets/ai-models/${id}.glb`,position:[Number(args.x||0),Number(args.y||0),Number(args.z||0)],scale:Number(args.scale||1),rotationY:Number(args.rotationY||0)};
+manifest.props=(manifest.props||[]).filter(x=>x.id!==id);manifest.props.push(entry);fs.writeFileSync(manifestPath,JSON.stringify(manifest,null,2)+'\n');
+console.log(`TRELLIS.2 GLB saved: ${glbPath}`);console.log(`manifest updated: ${manifestPath}`);

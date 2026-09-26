@@ -1,0 +1,6 @@
+import fs from 'node:fs';import path from 'node:path';import {describe,expect,it} from 'vitest';const root=path.resolve(__dirname,'..');const read=(p:string)=>fs.readFileSync(path.join(root,p),'utf8');
+describe('HF26.5 reference-derived art direction',()=>{
+ it('retains the measured reference profile as calibration evidence',()=>{const profile=JSON.parse(read('public/assets/reference-20260925/reference-style-profile.json'));expect(profile.luminance.median).toBeCloseTo(.3334,4);expect(profile.palette[0].hex).toBe('#1D4459');});
+ it('uses a softer Oklab transform rather than the previous overdriven matrix',()=>{const grade=read('src/client/rendering/cinematic-rendering-pipeline.ts');expect(grade).toContain('float ta=1.42*a-.16*b+.003');expect(grade).toContain('float tb=-.08*a+1.36*b-.004');expect(grade).toContain('float maxC=mix(.10,.20');expect(grade).not.toContain('2.21279016');});
+ it('keeps restrained bloom, ACES and reference teal/coral separation',()=>{const game=read('src/client/core/game.ts'),grade=read('src/client/rendering/cinematic-rendering-pipeline.ts');expect(game).toContain('ACESFilmicToneMapping');expect(game).toContain("this.bloomPass.strength=pp==='cinematic'?.14");expect(grade).toContain('semanticHueSeparation');expect(grade).toContain('suppressMuddyGreen');});
+});
