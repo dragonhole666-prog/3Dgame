@@ -1,0 +1,121 @@
+import { Color3 } from '@babylonjs/core';
+
+export interface ReferenceLookProfile {
+  version:1;
+  name:string;
+  environment:{
+    clearColor:string;
+    fogColor:string;
+    fogDensity:number;
+    exposure:number;
+    contrast:number;
+    environmentIntensity:number;
+  };
+  lighting:{
+    sunColor:string;
+    sunIntensity:number;
+    sunAzimuth:number;
+    sunElevation:number;
+    skyColor:string;
+    groundColor:string;
+    hemisphereIntensity:number;
+    coolFillColor:string;
+    coolFillIntensity:number;
+    warmRimColor:string;
+    warmRimIntensity:number;
+  };
+  foliage:{
+    mapleShadow:string;
+    mapleBase:string;
+    mapleLit:string;
+    mapleHighlight:string;
+    grassShadow:string;
+    grassBase:string;
+    grassLit:string;
+  };
+  water:{
+    deep:string;
+    shallow:string;
+    reflection:number;
+    roughness:number;
+    alpha:number;
+  };
+  architecture:{
+    woodDeep:string;
+    woodBase:string;
+    woodLit:string;
+    roofDeep:string;
+    roofLit:string;
+    stoneDeep:string;
+    stoneLit:string;
+  };
+  post:{
+    bloomWeight:number;
+    bloomThreshold:number;
+    bloomKernel:number;
+    vignetteWeight:number;
+  };
+}
+
+export const P0_REFERENCE_PROFILE:ReferenceLookProfile={
+  version:1,
+  name:'P0 Reference Match · Xianxia Garden',
+  environment:{
+    clearColor:'#B9DDEA',
+    fogColor:'#A8CAD8',
+    fogDensity:0.0068,
+    exposure:1.08,
+    contrast:1.13,
+    environmentIntensity:0.95
+  },
+  lighting:{
+    sunColor:'#FFD0A8',
+    sunIntensity:4.1,
+    sunAzimuth:38,
+    sunElevation:46,
+    skyColor:'#D9EEF5',
+    groundColor:'#314C57',
+    hemisphereIntensity:0.58,
+    coolFillColor:'#7EB7D0',
+    coolFillIntensity:0.42,
+    warmRimColor:'#E99A73',
+    warmRimIntensity:0.34
+  },
+  foliage:{
+    mapleShadow:'#6B2D25',
+    mapleBase:'#A84234',
+    mapleLit:'#D8674B',
+    mapleHighlight:'#F0A27D',
+    grassShadow:'#36503C',
+    grassBase:'#5F7B4F',
+    grassLit:'#8E9B66'
+  },
+  water:{
+    deep:'#154B67',
+    shallow:'#2E7F9D',
+    reflection:0.88,
+    roughness:0.14,
+    alpha:0.94
+  },
+  architecture:{
+    woodDeep:'#3E2720',
+    woodBase:'#6A4030',
+    woodLit:'#9A664A',
+    roofDeep:'#3E5059',
+    roofLit:'#6C8490',
+    stoneDeep:'#596A70',
+    stoneLit:'#B7B5AA'
+  },
+  post:{
+    bloomWeight:0.17,
+    bloomThreshold:0.86,
+    bloomKernel:52,
+    vignetteWeight:1.15
+  }
+};
+
+export const color3=(hex:string)=>Color3.FromHexString(hex);
+
+export function cloneReferenceProfile(profile:ReferenceLookProfile=P0_REFERENCE_PROFILE):ReferenceLookProfile{
+  return JSON.parse(JSON.stringify(profile)) as ReferenceLookProfile;
+}
