@@ -48,7 +48,6 @@ export class BabylonVisualDirector {
     scene.imageProcessingConfiguration.toneMappingEnabled=true;
     scene.imageProcessingConfiguration.toneMappingType=ImageProcessingConfiguration.TONEMAPPING_ACES;
     scene.imageProcessingConfiguration.vignetteEnabled=true;
-    scene.imageProcessingConfiguration.vignetteBlendMode=ImageProcessingConfiguration.VIGNETTEMODE_MULTIPLY;
 
     this.hemisphere=new HemisphericLight('P0_Hemisphere',new Vector3(0,1,0),scene);
     this.sun=new DirectionalLight('P0_Sun',new Vector3(-.55,-.72,.38),scene);
