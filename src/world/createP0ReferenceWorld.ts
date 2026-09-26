@@ -136,12 +136,12 @@ function createSkyBackdrop(scene:Scene){
   material.unlit=true;
   material.backFaceCulling=false;
 
-  const sky=MeshBuilder.CreatePlane('P0_SkyBackdrop',{
-    width:170,
-    height:88,
-    sideOrientation:Mesh.DOUBLESIDE
+  const sky=MeshBuilder.CreateSphere('P0_SkyDome',{
+    diameter:170,
+    segments:32,
+    sideOrientation:Mesh.BACKSIDE
   },scene);
-  sky.position.set(0,31,70);
+  sky.position.set(0,18,12);
   sky.material=material;
   sky.applyFog=false;
   sky.isPickable=false;
