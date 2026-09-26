@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run verify:babylon-only && tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "visual:capture": "npx --yes @playwright/test@1.55.0 test tests/hf27-visual-capture.spec.ts --config=playwright.hf27.config.ts",
     "visual:compare": "node scripts/hf27-visual-regression.mjs",
-    "visual:lookdev": "vite --host 0.0.0.0"
+    "visual:lookdev": "vite --host 0.0.0.0",
+    "verify:babylon-only": "node scripts/verify-babylon-only.mjs"
   },
   "dependencies": {
     "@babylonjs/core": "8.26.0",
