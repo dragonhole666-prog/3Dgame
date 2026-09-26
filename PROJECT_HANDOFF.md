@@ -95,17 +95,25 @@ Previously observed:
 
 These historical results do **not** prove the current refactor passes.
 
-### Current refactor
-Not yet observed after the latest changes:
-- `npm run verify:babylon-only`
-- `npm run typecheck`
-- `npm run build`
-- Playwright visual capture
-- browser screenshot output
-- visual-regression comparison
-- deployed remote preview
+### Observed P0 Babylon gate
+Observed on commit `bcd60eea218a1f7c40b9ead3f0b562653db1b76a`, workflow run `36279975363`:
+- Babylon-only architecture gate → PASS
+- Typecheck → PASS
+- Production build → PASS
+- Chromium install → PASS
+- Fixed-camera Playwright capture → PASS
+- Visual capture artifact upload → PASS
+- Production dist artifact upload → PASS
 
-The connected GitHub interface used in this session does not expose the push-triggered workflow run list, so no CI success is being claimed.
+The captured 1200×675 screenshots were downloaded and inspected. This is the first verified browser output for the Babylon-only P0 shell.
+
+### Current v2.3 visual-tuning commits
+Latest visual tuning commits:
+- `b3043656fc2a16a0aa19d3dc540573bc745499c3` — v2.3 LookDev retune
+- `3f51529e610007db50b13b125b8e8a310c7959f4` — softer procedural foliage / atmosphere / water
+- `318ff61aaf16fd059926438faee9c98c27bc55ef` — wider hero capture framing
+
+A workflow result for the new v2.3 head has not yet been observed. Do not claim the current head is green until a run is visible.
 
 ## Known Issues
 - Complete historical gameplay/server/UI content has not yet been ported.
@@ -118,13 +126,15 @@ The connected GitHub interface used in this session does not expose the push-tri
 - Large project-owned binaries still require a versioned storage/bootstrap strategy.
 
 ## Current Work
-Stabilize the Babylon-only v2 rendering refactor, observe a real build/capture result, then tune against the reference screenshot from actual browser output.
+Continue the Babylon-only v2.3 visual-match pass from real browser captures. The first real P0 capture run was observed and exposed the main gap: composition was structurally correct but the procedural foliage was too bulbous/dark, mountains too cyan/opaque, water too mirror-heavy and the overall lighting contrast too hard compared with the supplied airy xianxia garden reference.
+
+The current branch has now been retuned to a softer, brighter v2.3 profile, smaller/more numerous maple clusters, paler atmospheric mountains, softer water reflection and a slightly wider hero camera. The new commits still need their own observed build/capture run before visual acceptance.
 
 ## Next Actions
-1. Run/observe the P0 GitHub workflow and fix any TypeScript/Babylon API issues until architecture gate, typecheck and build are green.
-2. Download/review the Spawn / Bridge / Pavilion / Forest captures at 1200×675.
-3. Compare the captures against the supplied reference using the existing Oklab/luminance/chroma/warm-cool analyzer.
-4. Tune v2 exposure, fog, maple hierarchy, water reflection and warm/cool light ratios from measured screenshot deltas.
+1. Observe the workflow triggered by the v2.3 head and fix any regression until architecture gate, typecheck, build and capture are green.
+2. Download/review the new Spawn / Bridge / Pavilion / Forest captures at 1200×675.
+3. Re-run perceptual comparison against the supplied reference; focus on canopy silhouette, shadow floor, mountain haze, water luminance/reflection and warm/cool separation.
+4. Continue geometry/material upgrades only from measured capture differences; avoid palette-only tuning.
 5. Deploy the first remote preview and validate `?lookdev=1` in-browser.
 6. Add production-grade free/open assets from Quaternius / Poly Haven with source/license/checksum records.
 7. Port historical gameplay/server/UI modules in engine-independent batches; do not import the old renderer.
