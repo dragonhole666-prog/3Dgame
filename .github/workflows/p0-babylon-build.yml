@@ -10,9 +10,9 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-capture:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,8 +24,19 @@ jobs:
         run: npm run typecheck
       - name: Build
         run: npm run build
-      - name: Upload dist
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture fixed P0 cameras
+        run: npm run visual:capture
+      - name: Upload production dist
         uses: actions/upload-artifact@v4
         with:
           name: p0-babylon-dist
           path: dist
+      - name: Upload visual captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-babylon-visual-captures
+          path: artifacts/hf27-*
+          if-no-files-found: warn
