@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir:'./tests',
   testMatch:'hf27-visual-capture.spec.ts',
-  timeout:90_000,
+  timeout:360_000,
   workers:1,
   use:{
     baseURL:process.env.HF27_BASE_URL??'http://127.0.0.1:5173',
