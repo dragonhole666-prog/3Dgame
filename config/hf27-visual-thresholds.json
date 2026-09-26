@@ -1,8 +1,11 @@
 {
   "oklabMean": 0.16,
-  "luminanceMedian": 0.10,
-  "chromaMean": 0.07,
-  "highlightShare": 0.09,
-  "shadowShare": 0.09,
-  "warmCoolBalance": 0.36
+  "luminanceP10": 0.1,
+  "luminanceMedian": 0.1,
+  "luminanceP90": 0.1,
+  "chromaMean": 0.045,
+  "chromaP90": 0.065,
+  "highlightShare": 0.08,
+  "shadowShare": 0.08,
+  "warmCoolBalance": 0.32
 }
