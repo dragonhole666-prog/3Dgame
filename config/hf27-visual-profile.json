@@ -1,7 +1,68 @@
 {
-  "version": 1,
-  "name": "HF27 Reference Match",
-  "environment": {"background":"#CFE6F1","fogColor":"#92B5C5","fogDensity":0.00135,"environmentIntensity":1.08,"exposure":1.0},
-  "lighting": {"sunColor":"#F5C7A1","sunIntensity":4.4,"hemisphereSky":"#D3E7F1","hemisphereGround":"#32434D","hemisphereIntensity":0.34,"coolFillColor":"#7FA9C0","coolFillIntensity":0.3,"warmRimColor":"#D99678","warmRimIntensity":0.38,"bounceColor":"#D59A7D","bounceIntensity":0.18},
-  "post": {"bloomStrength":0.14,"bloomRadius":0.3,"bloomThreshold":0.89,"gradeStrength":1.0,"sharpen":0.025,"grain":0.0018,"vignette":0.035,"density":1.0,"chroma":0.94,"coral":1.03,"teal":1.04,"greenSuppress":0.58}
+  "version": 2,
+  "name": "P0 Reference Match v2 · Xianxia Garden",
+  "environment": {
+    "clearColor": "#CFE7F2",
+    "fogColor": "#8FAFC1",
+    "fogStart": 22,
+    "fogEnd": 72,
+    "exposure": 1.02,
+    "contrast": 1.18,
+    "environmentIntensity": 0.72
+  },
+  "lighting": {
+    "sunColor": "#F3D2BF",
+    "sunIntensity": 2.65,
+    "sunAzimuth": 38,
+    "sunElevation": 48,
+    "skyColor": "#C7E0EB",
+    "groundColor": "#1C3B4A",
+    "hemisphereIntensity": 0.37,
+    "coolFillColor": "#547A8E",
+    "coolFillIntensity": 0.24,
+    "warmRimColor": "#D89E86",
+    "warmRimIntensity": 0.16
+  },
+  "foliage": {
+    "mapleShadow": "#4B2725",
+    "mapleBase": "#8F433E",
+    "mapleLit": "#B66D5B",
+    "mapleHighlight": "#D8AB98",
+    "grassShadow": "#27382F",
+    "grassBase": "#4B6048",
+    "grassLit": "#7C8D65"
+  },
+  "water": {
+    "deep": "#1C3B4A",
+    "shallow": "#2A546D",
+    "reflection": 1.08,
+    "roughness": 0.14,
+    "alpha": 0.9,
+    "normalStrength": 0.34
+  },
+  "architecture": {
+    "woodDeep": "#2B201C",
+    "woodBase": "#4B322B",
+    "woodLit": "#7F5A49",
+    "roofDeep": "#263A45",
+    "roofLit": "#607485",
+    "stoneDeep": "#4E5352",
+    "stoneLit": "#8D8D82"
+  },
+  "post": {
+    "bloomWeight": 0.075,
+    "bloomThreshold": 0.91,
+    "bloomKernel": 36,
+    "vignetteWeight": 0.74,
+    "vignetteStretch": 0.18,
+    "saturation": 9,
+    "highlightsHue": 28,
+    "highlightsDensity": 6,
+    "highlightsSaturation": 5,
+    "shadowsHue": 205,
+    "shadowsDensity": 5,
+    "shadowsSaturation": 7,
+    "sharpenEdgeAmount": 0.16,
+    "sharpenColorAmount": 0.92
+  }
 }
