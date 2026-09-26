@@ -10,6 +10,7 @@ on:
       - 'cloudflare/**'
       - 'tests/**'
       - 'scripts/**'
+      - 'config/**'
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig.json'
@@ -22,9 +23,9 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,5 +40,34 @@ jobs:
         run: npm run typecheck
       - name: Build
         run: npm run build
+      - name: Package integrity
+        run: npm run verify:package
+      - name: Current project verification
+        run: npm run verify:current
+      - name: Unit tests
+        run: npm test
 
-# retry-after-lock-sync
+  visual-capture:
+    needs: build-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: p0-babylon-migration
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture fixed Babylon visual cameras
+        run: npm run visual:capture
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p0-babylon-visual-captures
+          path: artifacts/hf27-*
+          if-no-files-found: warn
+          retention-days: 14
