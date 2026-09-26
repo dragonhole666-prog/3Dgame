@@ -103,6 +103,8 @@ export class QinglanApp {
       });
     }
 
+    await scene.whenReadyAsync();
+    document.documentElement.dataset.qinglanReady='1';
     console.info('[P0 Babylon] backend=',this.backend);
     engine.runRenderLoop(()=>scene.render());
     window.addEventListener('resize',()=>engine.resize(),{passive:true});
