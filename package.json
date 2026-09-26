@@ -43,7 +43,8 @@
     "visual:compare": "node scripts/hf27-visual-regression.mjs",
     "visual:lookdev": "node scripts/dev.mjs",
     "dev:babylon": "vite --host 127.0.0.1 --mode babylon",
-    "build:babylon": "tsc --noEmit && vite build --mode babylon"
+    "build:babylon": "tsc --noEmit && vite build --mode babylon",
+    "visual:evaluate": "node scripts/p0-evaluate-captures.mjs"
   },
   "dependencies": {
     "@babylonjs/core": "9.28.0",
