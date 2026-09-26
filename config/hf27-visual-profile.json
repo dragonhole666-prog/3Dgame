@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "HF27 Reference Match",
+  "environment": {"background":"#CFE6F1","fogColor":"#92B5C5","fogDensity":0.00135,"environmentIntensity":1.08,"exposure":1.0},
+  "lighting": {"sunColor":"#F5C7A1","sunIntensity":4.4,"hemisphereSky":"#D3E7F1","hemisphereGround":"#32434D","hemisphereIntensity":0.34,"coolFillColor":"#7FA9C0","coolFillIntensity":0.3,"warmRimColor":"#D99678","warmRimIntensity":0.38,"bounceColor":"#D59A7D","bounceIntensity":0.18},
+  "post": {"bloomStrength":0.14,"bloomRadius":0.3,"bloomThreshold":0.89,"gradeStrength":1.0,"sharpen":0.025,"grain":0.0018,"vignette":0.035,"density":1.0,"chroma":0.94,"coral":1.03,"teal":1.04,"greenSuppress":0.58}
+}
