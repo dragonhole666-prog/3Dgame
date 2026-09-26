@@ -81,6 +81,8 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
     material.sheen.roughness=.74;
     material.sheen.albedoScaling=true;
   }
+  mapleLit.emissiveColor=color3(profile.foliage.mapleLit).scale(.025);
+  mapleHighlight.emissiveColor=color3(profile.foliage.mapleHighlight).scale(.045);
 
   const roof=pbr('P0_RoofMaterial',scene,profile.architecture.roofDeep,.58,0,.68);
   const roofLit=pbr('P0_RoofLitMaterial',scene,profile.architecture.roofLit,.52,0,.72);
@@ -237,7 +239,7 @@ function createKarstMountain(
   mesh.receiveShadows=true;
 
   for(let lobe=0;lobe<2;lobe++){
-    const bulb=MeshBuilder.CreateIcoSphere('P0_KarstLobe',{radius:1,subdivisions:3},scene);
+    const bulb=MeshBuilder.CreateIcoSphere('P0_KarstLobe',{radius:1,subdivisions:3,flat:false},scene);
     bulb.position.set(
       x+(lobe===0?-1:1)*width*(.17+noise(seed,30+lobe)*.09),
       height*(.31+lobe*.15),
@@ -248,7 +250,7 @@ function createKarstMountain(
     bulb.receiveShadows=true;
   }
 
-  const cap=MeshBuilder.CreateIcoSphere('P0_KarstCap',{radius:1,subdivisions:3},scene);
+  const cap=MeshBuilder.CreateIcoSphere('P0_KarstCap',{radius:1,subdivisions:3,flat:false},scene);
   cap.position.set(x+(noise(seed,91)-.5)*width*.18,height*.94,z+(noise(seed,92)-.5)*depth*.15);
   cap.scaling.set(width*.14,height*.115,depth*.14);
   cap.material=material;
@@ -316,19 +318,19 @@ function createMaple(
     new Vector3(x-1.38*scale,5.16*scale,z-.42*scale)
   ];
 
-  for(let i=0;i<28;i++){
+  for(let i=0;i<36;i++){
     const center=centers[i%centers.length];
-    const angle=i/28*Math.PI*2+variant*.41;
+    const angle=i/36*Math.PI*2+variant*.41;
     const radius=(.28+noise(variant+2,i)*1.04)*scale;
     const yLift=(noise(variant+5,i)-.38)*1.02*scale;
-    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.74*scale,subdivisions:3},scene);
+    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.64*scale,subdivisions:3,flat:false},scene);
     blob.position.set(
       center.x+Math.cos(angle)*radius,
       center.y+yLift,
       center.z+Math.sin(angle)*radius*.70
     );
-    const size=.72+noise(variant+9,i)*.62;
-    blob.scaling.set(size*1.38,size*.72,size*1.06);
+    const size=.66+noise(variant+9,i)*.56;
+    blob.scaling.set(size*1.30,size*.70,size*1.02);
     blob.rotation.set(noise(variant,80+i)*.45,angle,noise(variant,120+i)*.38);
     blob.material=foliageMaterials[(i+variant)%foliageMaterials.length];
     blob.receiveShadows=true;
@@ -441,7 +443,7 @@ function createBridge(scene:Scene,materials:P0Materials,shadow:CascadedShadowGen
     const deck=MeshBuilder.CreateBox('P0_BridgeDeck',{width:.46,height:.30,depth:2.34},scene);
     deck.position.set(x,y,2.15);
     deck.rotation.z=Math.atan2(nextY-y,.36);
-    deck.material=i%4===0?materials.stoneDark:materials.stone;
+    deck.material=i%6===0?materials.stoneDark:materials.stone;
     deck.receiveShadows=true;
     shadow.addShadowCaster(deck);
 
@@ -452,7 +454,7 @@ function createBridge(scene:Scene,materials:P0Materials,shadow:CascadedShadowGen
       for(const z of [1.03,3.27]){
         const post=MeshBuilder.CreateCylinder('P0_BridgePost',{height:1.18,diameter:.13,tessellation:10},scene);
         post.position.set(x,y+.56,z);
-        post.material=materials.stoneDark;
+        post.material=materials.stone;
         shadow.addShadowCaster(post);
       }
     }
@@ -460,7 +462,7 @@ function createBridge(scene:Scene,materials:P0Materials,shadow:CascadedShadowGen
 
   for(const [name,path] of [['P0_BridgeRailLeft',leftRail],['P0_BridgeRailRight',rightRail]] as const){
     const rail=MeshBuilder.CreateTube(name,{path,radius:.085,tessellation:10,cap:Mesh.CAP_ALL},scene);
-    rail.material=materials.stoneDark;
+    rail.material=materials.stone;
     shadow.addShadowCaster(rail);
   }
 }
@@ -481,6 +483,30 @@ function createFlowerBand(scene:Scene,x:number,z:number,width:number,count:numbe
   }
 }
 
+function createBankPatch(
+  scene:Scene,
+  material:PBRMaterial,
+  x:number,
+  z:number,
+  scaleX:number,
+  scaleZ:number,
+  rotationY:number
+){
+  const bank=MeshBuilder.CreateDisc('P0_OrganicBank',{
+    radius:5.7,
+    tessellation:36,
+    sideOrientation:Mesh.DOUBLESIDE
+  },scene);
+  bank.rotation.x=Math.PI*.5;
+  bank.rotation.y=rotationY;
+  bank.scaling.x=scaleX;
+  bank.scaling.y=scaleZ;
+  bank.position.set(x,.135,z);
+  bank.material=material;
+  bank.receiveShadows=true;
+  return bank;
+}
+
 function createShoreRocks(
   scene:Scene,
   materials:P0Materials,
@@ -493,7 +519,7 @@ function createShoreRocks(
   ] as const;
 
   placements.forEach(([x,y,z,s],index)=>{
-    const rock=MeshBuilder.CreateIcoSphere('P0_ShoreRock',{radius:.62,subdivisions:2},scene);
+    const rock=MeshBuilder.CreateIcoSphere('P0_ShoreRock',{radius:.62,subdivisions:3,flat:false},scene);
     rock.position.set(x,y,z);
     rock.scaling.set(s*1.35,s*.62,s);
     rock.rotation.set(.1*index,.35*index,.06*(index%3));
@@ -557,9 +583,12 @@ export function createP0ReferenceWorld(
   createPavilion(scene,materials,shadow,-10.2,8.4,1.05);
   createPavilion(scene,materials,shadow,8.8,13.2,.72);
 
+  createBankPatch(scene,materials.grass,-13.7,4.8,1.28,.68,-.12);
+  createBankPatch(scene,materials.grassLit,13.8,5.0,1.22,.72,.10);
+
   const maples=[
-    [-13.5,4.8,1.62,2],[-8.0,11.0,1.14,1],[-15.2,13.8,1.18,3],
-    [10.4,4.8,1.76,0],[14.8,8.4,1.12,2],[11.8,13.6,.94,1],
+    [-13.8,4.4,2.08,2],[-8.0,11.0,1.14,1],[-15.2,13.8,1.18,3],
+    [11.8,4.2,2.32,0],[14.8,8.4,1.12,2],[11.8,13.6,.94,1],
     [-3.8,15.3,.88,2],[4.2,15.4,.94,0]
   ] as const;
   maples.forEach(([x,z,s,v])=>createMaple(scene,materials,shadow,x,z,s,v));
@@ -641,6 +670,8 @@ export function createP0ReferenceWorld(
     materials.mapleBase.albedoColor=color3(next.foliage.mapleBase);
     materials.mapleLit.albedoColor=color3(next.foliage.mapleLit);
     materials.mapleHighlight.albedoColor=color3(next.foliage.mapleHighlight);
+    materials.mapleLit.emissiveColor=color3(next.foliage.mapleLit).scale(.025);
+    materials.mapleHighlight.emissiveColor=color3(next.foliage.mapleHighlight).scale(.045);
 
     materials.lakeDeep.albedoColor=color3(next.water.deep);
     materials.water.albedoColor=color3(next.water.shallow);
