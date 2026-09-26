@@ -3,6 +3,9 @@
 ## Repository
 dragonhole666-prog/3Dgame
 
+## Active Branch
+hf27-remote-visual-pipeline
+
 ## Current Target
 HF27 Remote Visual Production Pipeline
 
@@ -18,9 +21,9 @@ Three.js / WebGPU / TSL
 + Visual Regression
 
 ## Current State
-The GitHub repository has been initialized for remote development.
+GitHub is now the remote source-of-truth target and the HF27 feature branch is active.
 
-The previous project baseline discussed before migration is P0.26.8 / HF26.5 Visual Reboot. The authoritative project source has not yet been imported into this repository.
+The authoritative local baseline available to this work session is P0.26.8 / HF26.5 Visual Reboot. The complete HF26.5 source/assets have not yet been transferred into GitHub; the branch currently contains HF27 bootstrap/configuration files and new remote-visual tooling.
 
 ## Known HF26.x Direction
 - Legacy uploaded map path was being removed.
@@ -41,46 +44,66 @@ GitHub
 → visual regression gate
 → PR / merge
 
-## Required HF27 Systems
-1. Remote preview environment.
-2. Visual LookDev panel with serializable profiles.
-3. WebGPU/TSL migration plan with safe fallback.
-4. Reference-image comparison tooling.
-5. Fixed-camera screenshot capture.
-6. Visual regression thresholds.
-7. Asset registry + license manifest.
-8. Performance budget and regression checks.
-
-## Initial Visual Acceptance Targets
-- sky must not look like flat/dead blue
-- ground must not look muddy green
-- maple canopy should read coral/orange/pink rather than dull brown
-- water should reflect sky and warm foliage accents
-- distant mountains should read blue-grey with layered haze
-- cloth should not look like blue plastic
-- metal should not look flat yellow
-- skin should not look grey-white
-- cool/warm separation should remain controlled and coherent
-
-## Current Work
-Initialize the GitHub repository and prepare the HF27 remote production branch.
-
 ## Completed
-- Repository connection verified.
-- README created.
+- GitHub write access verified for dragonhole666-prog/3Dgame.
+- README.md, AGENTS.md and this handoff document created.
+- Development branch hf27-remote-visual-pipeline created.
+- HF27 serializable visual profile added.
+- Runtime Visual LookDev panel added; enable with ?lookdev=1.
+- LookDev controller can tune environment, lights, bloom and cinematic-grade uniforms at runtime.
+- WebGPU capability probe added. WebGL2 remains production renderer until TSL/post-processing parity is reached.
+- HF27 visual baseline profile and screenshot plan added.
+- Playwright visual-capture configuration and capture test scaffold added.
+- Manual GitHub Actions remote visual gate added.
+- HF27 remote-pipeline architecture documentation added.
+- Source-import status document added.
+- Local HF26.5 integration baseline was extracted and checked with existing project verifiers.
+
+## Verification Results
+Observed local verification after HF27 integration:
+- node scripts/verify-current.mjs → PASS
+- node scripts/verify-package-integrity.mjs → PASS
+- HF27 JSON / Node syntax checks → PASS
+- focused HF27 TypeScript parse produced no HF27 errors after excluding unresolved third-party-module errors caused by node_modules being unavailable
+
+Not yet verified:
+- npm typecheck
+- npm build
+- Vitest suite
+- Playwright screenshot suite
+- deployed browser preview
+
+Reason: npm dependency installation did not complete in the local tool environment, so node_modules was not available.
 
 ## Known Issues
-- Authoritative source archive has not yet been imported into GitHub.
+- Complete HF26.5 source/server/tests/scripts/package-lock/assets are not yet in GitHub.
+- Heavy binary VRM/GLB/PBR assets make a direct one-shot repository transfer unsuitable through the current chat GitHub connector.
+- Screenshot URLs exist, but deterministic camera-preset handling for visualCapture=spawn/bridge/pavilion/etc. still needs to be wired into the actual game runtime.
+- No public remote preview URL has been deployed yet.
+- WebGPU is capability-detected only; the live renderer is not yet migrated to WebGPU.
+- CI remains workflow_dispatch-only until the authoritative source tree is present.
+
+## Current Work
+Complete the source migration strategy, then make screenshot capture deterministic and deploy the first remote preview.
 
 ## Next Actions
-1. Import the authoritative source project into this repository.
-2. Create/confirm branch hf27-remote-visual-pipeline.
-3. Audit package.json, renderer setup, world renderer, post-processing, asset loading, and tests.
-4. Add remote-preview workflow.
-5. Add Visual LookDev profile system.
-6. Add fixed-camera screenshot capture.
-7. Add visual-regression baseline and metrics.
-8. Begin staged WebGPU/TSL migration.
+1. Transfer authoritative text/source tree into GitHub: src, server, cloudflare worker, tests, scripts, package-lock and project configs.
+2. Externalize/reprovision large third-party and generated binary assets instead of treating all of them as ordinary Git blobs.
+3. Implement deterministic visualCapture camera/state presets for Spawn, Bridge, Pavilion, Forest, Character Front/Back, Equipment Closeup and Combat.
+4. Run npm ci, typecheck, build, Vitest and Playwright in a real remote runner.
+5. Deploy first remote preview and validate ?lookdev=1 against the real browser render.
+6. Add visual comparison metrics: Oklab distance, hue/chroma distribution, luminance percentiles, clipping ratios and cool/warm separation.
+7. Begin staged TSL material/post migration; keep WebGL2 fallback until visual-regression parity is proven.
+8. Enable pull-request CI only after the authoritative source tree is complete.
+
+## Cross-Conversation Resume Instruction
+In any new ChatGPT conversation:
+1. Open this repository.
+2. Read AGENTS.md.
+3. Read PROJECT_HANDOFF.md.
+4. Inspect the active branch and latest commits.
+5. Continue from Current Work and Next Actions.
+6. Do not claim a verification passed unless its actual output was observed.
 
 ## Session Handoff Rule
 Before ending a substantial development session, update:
