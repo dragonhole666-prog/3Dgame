@@ -15,56 +15,56 @@ export const P0_REFERENCE_PROFILE:ReferenceLookProfile={
   version:1,
   name:'P0 Reference Match · Xianxia Garden',
   environment:{
-    clearColor:'#B7DDEB',
-    fogColor:'#9FC2D1',
-    fogDensity:0.0038,
-    exposure:0.96,
-    contrast:1.26,
-    environmentIntensity:0.82
+    clearColor:'#9CCFE3',
+    fogColor:'#87AEBF',
+    fogDensity:0.0027,
+    exposure:0.83,
+    contrast:1.38,
+    environmentIntensity:0.64
   },
   lighting:{
-    sunColor:'#F8C6A0',
-    sunIntensity:3.35,
+    sunColor:'#F4BC91',
+    sunIntensity:3.05,
     sunAzimuth:38,
     sunElevation:46,
-    skyColor:'#CAE4EE',
-    groundColor:'#263E49',
-    hemisphereIntensity:0.38,
-    coolFillColor:'#72A8BE',
-    coolFillIntensity:0.27,
-    warmRimColor:'#DC8968',
-    warmRimIntensity:0.28
+    skyColor:'#B7D7E3',
+    groundColor:'#1F313A',
+    hemisphereIntensity:0.24,
+    coolFillColor:'#6796AA',
+    coolFillIntensity:0.18,
+    warmRimColor:'#D3795B',
+    warmRimIntensity:0.22
   },
   foliage:{
-    mapleShadow:'#54251F',
-    mapleBase:'#8F342B',
-    mapleLit:'#CB5742',
-    mapleHighlight:'#ED936E',
-    grassShadow:'#2F4435',
-    grassBase:'#536C47',
-    grassLit:'#849360'
+    mapleShadow:'#461A1C',
+    mapleBase:'#842925',
+    mapleLit:'#C94935',
+    mapleHighlight:'#EA805B',
+    grassShadow:'#273B31',
+    grassBase:'#425D3C',
+    grassLit:'#738455'
   },
   water:{
-    deep:'#103E59',
-    shallow:'#267590',
-    reflection:0.92,
-    roughness:0.11,
-    alpha:0.91
+    deep:'#0C3049',
+    shallow:'#1A617F',
+    reflection:1.02,
+    roughness:0.09,
+    alpha:0.88
   },
   architecture:{
-    woodDeep:'#352018',
-    woodBase:'#5D3629',
-    woodLit:'#916047',
-    roofDeep:'#344854',
-    roofLit:'#68818D',
-    stoneDeep:'#4B5A61',
-    stoneLit:'#A8AAA3'
+    woodDeep:'#2E1A15',
+    woodBase:'#553025',
+    woodLit:'#87573F',
+    roofDeep:'#2F414B',
+    roofLit:'#5E7783',
+    stoneDeep:'#45535A',
+    stoneLit:'#8C918B'
   },
   post:{
-    bloomWeight:0.12,
-    bloomThreshold:0.91,
-    bloomKernel:44,
-    vignetteWeight:1.08
+    bloomWeight:0.095,
+    bloomThreshold:0.93,
+    bloomKernel:40,
+    vignetteWeight:1.06
   }
 };
 
