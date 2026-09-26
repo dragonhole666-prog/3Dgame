@@ -2,6 +2,7 @@ import {
   CascadedShadowGenerator,
   Color3,
   DirectionalLight,
+  DynamicTexture,
   Material,
   Mesh,
   MeshBuilder,
@@ -82,6 +83,31 @@ function noise(seed:number,index:number){
   return Math.sin(seed*12.9898+index*78.233)*.5+.5;
 }
 
+function createSkyBackdrop(scene:Scene){
+  const texture=new DynamicTexture('P0_SkyGradient',{width:32,height:512},scene,false);
+  const ctx=texture.getContext();
+  const gradient=ctx.createLinearGradient(0,0,0,512);
+  gradient.addColorStop(0,'#78BFE0');
+  gradient.addColorStop(.46,'#A8D3E5');
+  gradient.addColorStop(1,'#D8E9EE');
+  ctx.fillStyle=gradient;
+  ctx.fillRect(0,0,32,512);
+  texture.update();
+
+  const material=new StandardMaterial('P0_SkyBackdropMaterial',scene);
+  material.diffuseTexture=texture;
+  material.emissiveTexture=texture;
+  material.disableLighting=true;
+  material.backFaceCulling=false;
+
+  const sky=MeshBuilder.CreatePlane('P0_SkyBackdrop',{width:150,height:78,sideOrientation:Mesh.DOUBLESIDE},scene);
+  sky.position.set(0,28,64);
+  sky.material=material;
+  sky.applyFog=false;
+  sky.isPickable=false;
+  return sky;
+}
+
 function createKarstMountain(
   scene:Scene,
   material:PBRMaterial,
@@ -92,9 +118,9 @@ function createKarstMountain(
   depth:number,
   seed:number
 ){
-  const segments=16;
-  const ringHeights=[0,height*.28,height*.62,height*.86,height];
-  const ringRadius=[1,.82,.53,.28,.055];
+  const segments=24;
+  const ringHeights=[0,height*.22,height*.52,height*.78,height*.94];
+  const ringRadius=[1,.90,.69,.47,.20];
   const positions:number[]=[];
   const indices:number[]=[];
   const normals:number[]=[];
@@ -136,6 +162,25 @@ function createKarstMountain(
   mesh.position.set(x,-.15,z);
   mesh.material=material;
   mesh.receiveShadows=true;
+
+  for(let lobe=0;lobe<2;lobe++){
+    const bulb=MeshBuilder.CreateIcoSphere('P0_KarstLobe',{radius:1,subdivisions:3},scene);
+    bulb.position.set(
+      x+(lobe===0?-1:1)*width*(.18+noise(seed,30+lobe)*.08),
+      height*(.30+lobe*.16),
+      z+(noise(seed,40+lobe)-.5)*depth*.18
+    );
+    bulb.scaling.set(width*(.26-lobe*.035),height*(.32-lobe*.045),depth*(.26-lobe*.035));
+    bulb.material=material;
+    bulb.receiveShadows=true;
+  }
+
+  const cap=MeshBuilder.CreateIcoSphere('P0_KarstCap',{radius:1,subdivisions:3},scene);
+  cap.position.set(x+(noise(seed,91)-.5)*width*.18,height*.93,z+(noise(seed,92)-.5)*depth*.15);
+  cap.scaling.set(width*.14,height*.11,depth*.14);
+  cap.material=material;
+  cap.receiveShadows=true;
+
   return mesh;
 }
 
@@ -187,34 +232,37 @@ function createMaple(
   addBranch(scene,materials.wood,shadow,branchBase,new Vector3(x+.95*scale,4.65*scale,z-.15*scale),.21*scale);
   addBranch(scene,materials.wood,shadow,new Vector3(x,3.85*scale,z),new Vector3(x+.15*scale,5.2*scale,z+.78*scale),.18*scale);
 
-  const material=variant%4===0?materials.mapleHighlight:variant%4===1?materials.mapleLit:variant%4===2?materials.mapleBase:materials.mapleShadow;
-  const crownSource=MeshBuilder.CreateSphere('P0_MapleCrown',{
-    diameter:2.55*scale,
-    segments:12
-  },scene);
-  crownSource.position.set(x-1.0*scale,4.65*scale,z);
-  crownSource.scaling.set(1.45,.46,1.05);
-  crownSource.material=material;
-  crownSource.receiveShadows=true;
-  shadow.addShadowCaster(crownSource);
+  const foliageMaterials=[
+    materials.mapleShadow,
+    materials.mapleBase,
+    materials.mapleLit,
+    materials.mapleHighlight
+  ];
 
-  const offsets=[
-    [0,.12,0,1],
-    [1.7,.05,.12,.92],
-    [.75,.38,-.78,.84],
-    [1.1,.5,.76,.78],
-    [.42,.78,.05,.69],
-    [-.58,.46,.58,.68]
-  ] as const;
+  const centers=[
+    new Vector3(x-1.05*scale,4.62*scale,z+.15*scale),
+    new Vector3(x+.95*scale,4.72*scale,z-.12*scale),
+    new Vector3(x+.2*scale,5.35*scale,z+.72*scale)
+  ];
 
-  offsets.slice(1).forEach(([ox,oy,oz,s],index)=>{
-    const crown=crownSource.createInstance('P0_MapleCrownInstance');
-    crown.position.set(x-1.0*scale+ox*scale,4.65*scale+oy*scale,z+oz*scale);
-    crown.scaling.set(1.45*s,.46*s,1.05*s);
-    crown.rotation.y=index*.73+variant*.19;
-    crown.receiveShadows=true;
-    shadow.addShadowCaster(crown);
-  });
+  for(let i=0;i<18;i++){
+    const center=centers[i%centers.length];
+    const angle=(i/18)*Math.PI*2+variant*.41;
+    const radius=(.32+noise(variant+2,i)*1.05)*scale;
+    const yLift=(noise(variant+5,i)-.35)*1.05*scale;
+    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.72*scale,subdivisions:2},scene);
+    blob.position.set(
+      center.x+Math.cos(angle)*radius,
+      center.y+yLift,
+      center.z+Math.sin(angle)*radius*.68
+    );
+    const size=.72+noise(variant+9,i)*.62;
+    blob.scaling.set(size*1.25,size*.72,size);
+    blob.rotation.set(noise(variant,80+i)*.4,angle,noise(variant,120+i)*.35);
+    blob.material=foliageMaterials[(i+variant)%foliageMaterials.length];
+    blob.receiveShadows=true;
+    shadow.addShadowCaster(blob);
+  }
 
   return trunk;
 }
@@ -292,6 +340,19 @@ function createPavilion(
   cap.material=materials.roof;
   shadow.addShadowCaster(cap);
 
+  for(const [cx,cz,rx,rz] of [
+    [-3.15,-3.15,-.26,.26],[3.15,-3.15,-.26,-.26],
+    [-3.15,3.15,.26,.26],[3.15,3.15,.26,-.26]
+  ] as const){
+    const eave=MeshBuilder.CreateBox('P0_PavilionEaveTip',{width:1.45,height:.18,depth:.42},scene);
+    eave.parent=root;
+    eave.position.set(cx,5.2,cz);
+    eave.rotation.x=rx;
+    eave.rotation.z=rz;
+    eave.material=materials.roof;
+    shadow.addShadowCaster(eave);
+  }
+
   return root;
 }
 
@@ -356,6 +417,7 @@ function createFlowerBand(scene:Scene,x:number,z:number,width:number,count:numbe
 
 export function createP0ReferenceWorld(scene:Scene,sun:DirectionalLight,profile:ReferenceLookProfile):P0WorldRuntime{
   const materials=makeMaterials(scene,profile);
+  createSkyBackdrop(scene);
 
   sun.shadowMinZ=1;
   sun.shadowMaxZ=100;
