@@ -1,24 +1,51 @@
 # HF27 Remote Visual Production Pipeline
 
-HF27 changes the visual-development loop from ZIP handoffs to a repeatable remote pipeline.
+HF27 uses GitHub as the source of truth for a repeatable Babylon.js visual-development loop.
 
 ## Runtime direction
-- Keep Three.js as the game runtime.
-- Keep WebGL2 as the production backend during the first migration stage because the current EffectComposer/SSAO/Bloom stack is WebGL-oriented.
-- Detect WebGPU and treat it as a migration candidate. Port custom materials/post effects to TSL before switching the production renderer.
-- Use `?lookdev=1` to expose the HF27 Visual LookDev panel in development/preview builds.
+- Babylon.js is the only runtime 3D engine.
+- WebGPU is attempted first where the browser supports it.
+- Babylon Engine/WebGL2 remains a Babylon-native fallback and the deterministic screenshot backend.
+- Three.js, TSL, React Three Fiber, three-stdlib and dual-renderer compatibility layers are prohibited.
+- `npm run verify:babylon-only` is the architecture gate.
+- Use `?lookdev=1` to expose the P0 Babylon Visual LookDev panel.
+
+## Reference-match direction
+The supplied 1200×675 xianxia reference is treated as an art-direction target, not merely a palette swatch.
+
+The v2 reference profile is calibrated around:
+- pale cyan daylight and haze
+- deep cyan/blue water and open cool shadows
+- coral/vermilion maple masses with peach highlights
+- warm brown timber
+- slate blue-grey roof material
+- warm-neutral stone
+- restrained bloom, moderate ACES contrast and controlled saturation
+
+The visual stack is Babylon-native:
+- PBRMaterial for world surfaces
+- CascadedShadowGenerator for outdoor key shadows
+- MirrorTexture plus procedural normal detail for hero water
+- DefaultRenderingPipeline for FXAA, bloom and sharpening
+- ImageProcessingConfiguration / ColorCurves for ACES exposure, contrast, warm highlights and cool shadows
 
 ## LookDev contract
-A versioned visual profile controls environment, key/fill/rim/bounce lighting, exposure, bloom, and cinematic grade uniforms. Values persist in localStorage while tuning and can be copied as JSON for promotion into the checked-in baseline.
+The versioned visual profile controls:
+- exposure / contrast
+- linear fog start / end / color
+- sun intensity / color / azimuth / elevation
+- sky, ground, cool-fill and warm-rim balance
+- four-tone maple palette and three-tone ground palette
+- water deep/shallow color, reflection, roughness, alpha and normal strength
+- wood / roof / stone material families
+- bloom, vignette, saturation, warm-highlight/cool-shadow grade and sharpening
+
+Values persist in localStorage while tuning and can be copied as JSON for promotion into the checked-in baseline.
 
 ## Remote visual-regression contract
-The screenshot plan is stored in `config/hf27-screenshot-plan.json`. Playwright captures deterministic 1600×900 frames for Spawn, Bridge, Pavilion, Forest, Character Front/Back, Equipment Closeup, and Combat.
+The screenshot plan is stored in `config/hf27-screenshot-plan.json`. Playwright captures deterministic 1200×675 frames for Spawn, Bridge, Pavilion, Forest, Character Front/Back, Equipment Closeup and Combat.
 
-A future metric stage compares captures against approved reference frames using Oklab distance, hue/chroma distributions, luminance percentiles, clipping ratios, and cool/warm separation. Pixel-perfect comparison is intentionally not the primary gate for a real-time 3D scene.
+The metric stage compares captures against approved reference frames using Oklab distance, hue/chroma distributions, luminance percentiles, clipping ratios and cool/warm separation. Pixel-perfect comparison is not the primary gate for a real-time 3D scene; the purpose is to detect material, lighting and grading drift.
 
-## WebGPU / TSL migration gates
-1. WebGPU capability detection and diagnostics.
-2. TSL equivalents for custom material nodes and creative grading.
-3. Post-processing parity with current SSAO/Bloom/grade.
-4. Screenshot-regression parity across WebGL2 and WebGPU.
-5. Only then allow WebGPU as the default backend.
+## Migration rule
+Legacy HF26 source is a reference pool for gameplay logic and project-owned assets only. Do not copy the old renderer into this branch. Any required gameplay behavior must be ported behind Babylon-native scene, camera, asset, material and render ownership.
