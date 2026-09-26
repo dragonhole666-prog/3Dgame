@@ -6,6 +6,9 @@ on:
       - hf27-remote-visual-pipeline
     paths-ignore:
       - '**/*.md'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -26,6 +29,8 @@ jobs:
           node-version: '22.16.0'
       - name: Install dependencies
         run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Verify Babylon-only architecture
+        run: npm run verify:babylon-only
       - name: Typecheck
         run: npm run typecheck
       - name: Build
