@@ -19,6 +19,10 @@ on:
       - '.github/workflows/p0-babylon-ci.yml'
   workflow_dispatch:
 
+concurrency:
+  group: p0-babylon-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
