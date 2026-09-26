@@ -4,14 +4,20 @@ import {
   DefaultRenderingPipeline,
   DirectionalLight,
   HemisphericLight,
+  ImageProcessingConfiguration,
   Scene,
   Vector3
 } from '@babylonjs/core';
 import { createQinglanEngine, type QinglanBackend } from '../rendering/createEngine';
-import { P0_REFERENCE_PROFILE, cloneReferenceProfile, color3, type ReferenceLookProfile } from '../rendering/referenceProfile';
+import { cloneReferenceProfile, color3, type ReferenceLookProfile } from '../rendering/referenceProfile';
 import { createP0ReferenceWorld, type P0WorldRuntime } from '../world/createP0ReferenceWorld';
 import { mountP0LookDevPanel } from '../ui/P0LookDevPanel';
 import { applyVisualCapturePreset } from '../visual/visualCapturePresets';
+
+const toColor4=(hex:string)=>{
+  const c=color3(hex);
+  return new Color4(c.r,c.g,c.b,1);
+};
 
 export class QinglanApp {
   private readonly canvas:HTMLCanvasElement;
@@ -32,14 +38,15 @@ export class QinglanApp {
   async start(){
     const {engine,backend}=await createQinglanEngine(this.canvas);
     this.backend=backend;
+
     const scene=new Scene(engine);
-    scene.clearColor=new Color4(...color3(this.profile.environment.clearColor).asArray(),1);
+    scene.clearColor=toColor4(this.profile.environment.clearColor);
     scene.fogMode=Scene.FOGMODE_EXP2;
     scene.fogColor=color3(this.profile.environment.fogColor);
     scene.fogDensity=this.profile.environment.fogDensity;
     scene.environmentIntensity=this.profile.environment.environmentIntensity;
     scene.imageProcessingConfiguration.toneMappingEnabled=true;
-    scene.imageProcessingConfiguration.toneMappingType=1;
+    scene.imageProcessingConfiguration.toneMappingType=ImageProcessingConfiguration.TONEMAPPING_ACES;
     scene.imageProcessingConfiguration.exposure=this.profile.environment.exposure;
     scene.imageProcessingConfiguration.contrast=this.profile.environment.contrast;
 
@@ -106,7 +113,7 @@ export class QinglanApp {
     const scene=this.scene;
     if(!scene||!this.pipeline||!this.world) return;
 
-    scene.clearColor=new Color4(...color3(next.environment.clearColor).asArray(),1);
+    scene.clearColor=toColor4(next.environment.clearColor);
     scene.fogColor=color3(next.environment.fogColor);
     scene.fogDensity=next.environment.fogDensity;
     scene.environmentIntensity=next.environment.environmentIntensity;
@@ -123,8 +130,10 @@ export class QinglanApp {
 
     const sun=scene.getLightByName('P0_Sun') as DirectionalLight|null;
     if(sun){sun.diffuse=color3(next.lighting.sunColor);sun.intensity=next.lighting.sunIntensity;}
+
     const fill=scene.getLightByName('P0_CoolFill') as DirectionalLight|null;
     if(fill){fill.diffuse=color3(next.lighting.coolFillColor);fill.intensity=next.lighting.coolFillIntensity;}
+
     const rim=scene.getLightByName('P0_WarmRim') as DirectionalLight|null;
     if(rim){rim.diffuse=color3(next.lighting.warmRimColor);rim.intensity=next.lighting.warmRimIntensity;}
 
