@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - p0-babylon-migration
+      - hf34-babylon-reference-look
     paths:
       - 'src/**'
       - 'server/**'
@@ -32,8 +33,6 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: p0-babylon-migration
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16.0'
