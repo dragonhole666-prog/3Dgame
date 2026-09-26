@@ -65,11 +65,11 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
   water.indexOfRefraction=1.333;
   water.microSurface=.96;
   water.clearCoat.isEnabled=true;
-  water.clearCoat.intensity=.62;
-  water.clearCoat.roughness=.10;
+  water.clearCoat.intensity=.48;
+  water.clearCoat.roughness=.18;
 
-  const mountainNear=pbr('P0_MountainNear',scene,'#486D80',.96,0,.28);
-  const mountainFar=pbr('P0_MountainFar',scene,'#6C96AA',1,0,.18);
+  const mountainNear=pbr('P0_MountainNear',scene,'#6F909D',.96,0,.34);
+  const mountainFar=pbr('P0_MountainFar',scene,'#9AB3BC',1,0,.22);
 
   const mapleShadow=pbr('P0_MapleShadow',scene,profile.foliage.mapleShadow,.86,0,.54);
   const mapleBase=pbr('P0_MapleBase',scene,profile.foliage.mapleBase,.82,0,.58);
@@ -124,9 +124,9 @@ function createSkyBackdrop(scene:Scene){
   const texture=new DynamicTexture('P0_SkyGradient',{width:32,height:512},scene,false);
   const ctx=texture.getContext();
   const gradient=ctx.createLinearGradient(0,0,0,512);
-  gradient.addColorStop(0,'#72C7EB');
-  gradient.addColorStop(.48,'#A8DAED');
-  gradient.addColorStop(1,'#D8E8EC');
+  gradient.addColorStop(0,'#83C8E4');
+  gradient.addColorStop(.50,'#C0DFE8');
+  gradient.addColorStop(1,'#EEF0E8');
   ctx.fillStyle=gradient;
   ctx.fillRect(0,0,32,512);
   texture.update(false);
@@ -318,19 +318,19 @@ function createMaple(
     new Vector3(x-1.38*scale,5.16*scale,z-.42*scale)
   ];
 
-  for(let i=0;i<36;i++){
+  for(let i=0;i<58;i++){
     const center=centers[i%centers.length];
-    const angle=i/36*Math.PI*2+variant*.41;
-    const radius=(.28+noise(variant+2,i)*1.04)*scale;
-    const yLift=(noise(variant+5,i)-.38)*1.02*scale;
-    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.64*scale,subdivisions:3,flat:false},scene);
+    const angle=i/58*Math.PI*2+variant*.41;
+    const radius=(.34+noise(variant+2,i)*1.16)*scale;
+    const yLift=(noise(variant+5,i)-.42)*1.12*scale;
+    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.43*scale,subdivisions:2,flat:false},scene);
     blob.position.set(
       center.x+Math.cos(angle)*radius,
       center.y+yLift,
       center.z+Math.sin(angle)*radius*.70
     );
-    const size=.66+noise(variant+9,i)*.56;
-    blob.scaling.set(size*1.30,size*.70,size*1.02);
+    const size=.62+noise(variant+9,i)*.52;
+    blob.scaling.set(size*1.48,size*.58,size*1.16);
     blob.rotation.set(noise(variant,80+i)*.45,angle,noise(variant,120+i)*.38);
     blob.material=foliageMaterials[(i+variant)%foliageMaterials.length];
     blob.receiveShadows=true;
@@ -587,8 +587,8 @@ export function createP0ReferenceWorld(
   createBankPatch(scene,materials.grassLit,13.8,5.0,1.22,.72,.10);
 
   const maples=[
-    [-13.8,4.4,2.08,2],[-8.0,11.0,1.14,1],[-15.2,13.8,1.18,3],
-    [11.8,4.2,2.32,0],[14.8,8.4,1.12,2],[11.8,13.6,.94,1],
+    [-13.8,4.4,1.78,2],[-8.0,11.0,1.14,1],[-15.2,13.8,1.18,3],
+    [11.8,4.2,1.94,0],[14.8,8.4,1.12,2],[11.8,13.6,.94,1],
     [-3.8,15.3,.88,2],[4.2,15.4,.94,0]
   ] as const;
   maples.forEach(([x,z,s,v])=>createMaple(scene,materials,shadow,x,z,s,v));
@@ -609,9 +609,9 @@ export function createP0ReferenceWorld(
   lakeBed.material=materials.lakeDeep;
   lakeBed.receiveShadows=true;
 
-  const mistMaterial=pbr('P0_MistMaterial',scene,'#A7C6D2',1,0,0);
-  mistMaterial.emissiveColor=color3('#92B7C4');
-  mistMaterial.alpha=.05;
+  const mistMaterial=pbr('P0_MistMaterial',scene,'#BDD5D8',1,0,0);
+  mistMaterial.emissiveColor=color3('#B4D0D5');
+  mistMaterial.alpha=.075;
   mistMaterial.transparencyMode=Material.MATERIAL_ALPHABLEND;
   mistMaterial.unlit=true;
   mistMaterial.backFaceCulling=false;
@@ -626,7 +626,7 @@ export function createP0ReferenceWorld(
     mist.position.set(x,y,z);
     mist.scaling.set(sx,.16,sz);
     mist.material=mistMaterial;
-    mist.visibility=.76-index*.07;
+    mist.visibility=.66-index*.055;
     mist.isPickable=false;
   });
 
@@ -648,7 +648,7 @@ export function createP0ReferenceWorld(
   const mirror=new MirrorTexture('P0_WaterMirror',768,scene,true);
   mirror.mirrorPlane=new Plane(0,-1,0,.10);
   mirror.level=profile.water.reflection;
-  mirror.adaptiveBlurKernel=20;
+  mirror.adaptiveBlurKernel=28;
   materials.water.reflectionTexture=mirror;
   mirror.renderList=scene.meshes.filter(
     (mesh)=>mesh!==water && mesh!==lakeBed && !mesh.name.includes('Mist')
