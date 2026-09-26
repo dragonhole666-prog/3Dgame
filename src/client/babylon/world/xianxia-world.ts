@@ -281,7 +281,7 @@ function createWater(scene:Scene){
   mat.bumpTexture=normal;
   water.material=mat;
   const mirror=new MirrorTexture('HF34_LakeMirror',1024,scene,true);
-  mirror.mirrorPlane=new Plane(0,-1,0,y);mirror.level=.70;mirror.adaptiveBlurKernel=12;
+  mirror.mirrorPlane=new Plane(0,-1,0,y);mirror.level=.70;
   mat.reflectionTexture=mirror;
   const observer=scene.onBeforeRenderObservable.add(()=>{
     normal.uOffset=(normal.uOffset+.000045)%1;
