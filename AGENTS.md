@@ -4,9 +4,10 @@
 Build and maintain a browser-based 3D xianxia game using a remote-first production workflow.
 
 ## Authoritative Stack
-- Three.js
-- WebGPU where supported, with WebGL fallback where required
-- TSL for new shader/material work where practical
+- Babylon.js 9.28.0 is the primary game renderer/runtime.
+- WebGPU where supported, with Babylon WebGL2 fallback.
+- Three.js is legacy compatibility only and must require explicit ?engine=three.
+- New world rendering, materials, water, post-processing and LookDev work belongs in src/client/babylon/.
 - TypeScript
 - Vite
 - GitHub as source of truth
@@ -79,7 +80,8 @@ Do not introduce assets without recording source and license in the repository.
 ## Architecture Rules
 - UI metadata must have a single source of truth.
 - Shared network policy must be centralized.
-- Do not use removed/deprecated Three.js Geometry/Face3 APIs.
+- Do not move new rendering work back into the legacy Three.js pipeline.
+- Do not use removed/deprecated Three.js Geometry/Face3 APIs in compatibility code.
 - Avoid per-frame object allocation in requestAnimationFrame hot paths.
 - Repeated foliage/rocks should use instancing where practical.
 - World visual placement, collision, navigation obstruction, and camera collision should derive from shared placement data where practical.
@@ -87,7 +89,7 @@ Do not introduce assets without recording source and license in the repository.
 
 ## Git Workflow
 - main = stable baseline
-- active development branch = hf27-remote-visual-pipeline
+- active development branch = hf34-babylon-reference-look
 - substantial work should be reviewed through PRs
 - never claim a test passed unless the actual command/output was observed
 
