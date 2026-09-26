@@ -77,6 +77,7 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
   const mapleHighlight=pbr('P0_MapleHighlight',scene,profile.foliage.mapleHighlight,.76,0,.66);
   for(const material of [mapleShadow,mapleBase,mapleLit,mapleHighlight]){
     material.sheen.isEnabled=true;
+    material.sheen.intensity=.14;
     material.sheen.roughness=.74;
     material.sheen.albedoScaling=true;
   }
