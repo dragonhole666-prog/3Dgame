@@ -1,52 +1,58 @@
 # AGENTS.md — 青嵐志 / Qinglan Webgame
 
 ## Project Goal
-Build and maintain a browser-based 3D xianxia game using a remote-first production workflow.
+Build and maintain a browser-based 3D xianxia game with a remote-first production workflow and commercial-grade rendering.
 
-## Authoritative Stack
-- Three.js
-- WebGPU where supported, with WebGL fallback where required
-- TSL for new shader/material work where practical
+## Authoritative Runtime Stack
+- Babylon.js
+- WebGPU first where stable; WebGL2 fallback when required
 - TypeScript
 - Vite
 - GitHub as source of truth
 - Remote preview deployment
-- Automated build/test/screenshot/visual-regression pipeline
+- Automated build / screenshot / visual-regression pipeline
 
-## Visual Production Workflow
-1. Modify source code/assets on a feature branch.
-2. Run build/typecheck/tests.
-3. Deploy a remote preview.
-4. Capture fixed-camera screenshots.
-5. Compare against reference visual targets.
-6. Tune lighting, materials, atmosphere, water, post-processing, composition.
-7. Re-run visual regression before merge.
+Three.js / TSL is no longer the target runtime architecture for new P0 work. Do not add new Three.js rendering code unless it is part of a temporary migration adapter that is explicitly marked for removal.
 
-## Visual Art Direction
-Target: realistic/dreamlike xianxia, not flat cartoon rendering.
+## P0 Visual Target
+The supplied reference image is the primary art-direction target for P0.
 
-Core look:
-- cool cyan/blue sky and water
-- pale blue atmospheric haze
-- coral/orange-red maple foliage
-- warm timber and architectural accents
-- clean highlights and cool shadows
-- strong but controlled cool/warm separation
-- layered distant mountains and mist
-- cloth, metal, jade, skin treated as distinct material classes
+Target characteristics:
+- cinematic xianxia garden composition
+- lake/water occupying a large foreground share
+- coral / vermilion / orange-red maple canopy
+- warm timber pavilions and bridge against cool cyan atmosphere
+- layered blue-grey karst mountains
+- pale cyan daylight and atmospheric perspective
+- high material separation: water / foliage / stone / wood / metal / cloth / skin
+- clean highlights, cool deep shadows, warm key accents
+- realistic/dreamlike rendering, never flat-cartoon or muddy
+
+The goal is progressive reference matching, not blind palette copying. Composition, material response, lighting ratios, fog depth, reflection strength and post-processing must all be tuned together.
+
+## Babylon Rendering Policy
+Use Babylon-native systems:
+- WebGPUEngine with Engine fallback
+- PBRMaterial / PBRMetallicRoughnessMaterial
+- DefaultRenderingPipeline for bloom / FXAA / image processing where suitable
+- CascadedShadowGenerator for outdoor key shadows
+- MirrorTexture / reflection probes / environment textures for water and reflective assets
+- thin instances / instances for repeated foliage and props
+- AssetContainer / SceneLoader for modular GLB import
+- GUI or DOM-based LookDev controls with serializable profiles
 
 ## Remote LookDev
-The project should expose a runtime Visual LookDev panel for:
-- sun intensity / temperature
-- environment exposure
-- fog density / color
-- foliage palette
-- water deep/shallow colors
-- Fresnel / reflection
-- material roughness / metalness / env response
-- post exposure / bloom / contrast / color grade
+Runtime LookDev must expose:
+- exposure / contrast / tone mapping
+- sun intensity / color / direction
+- sky / hemisphere / fill / rim balance
+- fog color / density
+- maple / grass / stone / wood palette
+- water deep/shallow color, roughness, reflection
+- bloom / vignette
+- environment intensity
 
-LookDev values must be serializable into a versioned visual profile.
+All values must serialize to a versioned visual profile.
 
 ## Fixed Visual Regression Cameras
 Minimum:
@@ -64,7 +70,7 @@ Track where useful:
 - Oklab color distance
 - hue distribution
 - chroma / saturation
-- luminance distribution
+- luminance percentiles
 - highlight clipping
 - shadow clipping
 - cool/warm separation
@@ -74,30 +80,30 @@ Preferred free sources:
 - Quaternius
 - Poly Haven
 
-Do not introduce assets without recording source and license in the repository.
+Every imported external asset must record source, license and target path.
 
 ## Architecture Rules
 - UI metadata must have a single source of truth.
 - Shared network policy must be centralized.
-- Do not use removed/deprecated Three.js Geometry/Face3 APIs.
-- Avoid per-frame object allocation in requestAnimationFrame hot paths.
-- Repeated foliage/rocks should use instancing where practical.
-- World visual placement, collision, navigation obstruction, and camera collision should derive from shared placement data where practical.
-- Do not reintroduce the legacy uploaded-map pipeline once removed.
+- Avoid per-frame object allocation in render hot paths.
+- Repeated foliage / rocks / props should use instances or thin instances where practical.
+- World placement, collision, navigation obstruction and camera collision should derive from shared placement data.
+- Do not reintroduce the legacy uploaded-map pipeline.
+- Do not reintroduce Three.js as the primary renderer.
 
 ## Git Workflow
 - main = stable baseline
 - active development branch = hf27-remote-visual-pipeline
-- substantial work should be reviewed through PRs
-- never claim a test passed unless the actual command/output was observed
+- substantial work goes through PR review
+- never claim a test passed unless actual output was observed
 
 ## Cross-Conversation Continuity
 At the start of a new ChatGPT conversation:
 1. Open PROJECT_HANDOFF.md.
-2. Inspect current branch and latest commits.
+2. Inspect the active branch and latest commits.
 3. Read AGENTS.md.
 4. Continue from Current Work and Next Actions.
-5. Update PROJECT_HANDOFF.md before ending a substantial work session.
+5. Update PROJECT_HANDOFF.md before ending substantial work.
 
 ## Verification Principle
 Never substitute inferred success for observed success.
