@@ -7,18 +7,17 @@ dragonhole666-prog/3Dgame
 hf27-remote-visual-pipeline
 
 ## Current Target
-HF27 Remote Visual Production Pipeline
+HF34 Babylon.js Reference-Look Lock
 
 ## Mission
-Convert the project to a remote-first browser 3D production workflow:
+Run the game primarily on Babylon.js and converge the shipped rendering language on the supplied xianxia garden reference:
 
-Three.js / WebGPU / TSL
-+ Remote Web 3D Preview
-+ Visual LookDev Editor
-+ Quaternius / Poly Haven asset pipeline
-+ Automated Build
-+ Automated Screenshot Capture
-+ Visual Regression
+Babylon.js / WebGPU / WebGL2 fallback
++ Quaternius hero-garden assets
++ ACES reference grade
++ reflective water / atmospheric depth
++ fixed-camera visual regression
++ remote preview and CI
 
 ## Current State
 GitHub is now the remote source-of-truth target and the HF27 feature branch is active.
@@ -98,27 +97,31 @@ The size difference is primarily VRM/GLB/PBR and other binary assets.
 - CI remains workflow_dispatch-only until the authoritative source tree is present.
 
 ## Current Work
-Transfer the authoritative code tree, then wire deterministic screenshot cameras and deploy the first real remote preview.
+HF34 reference lock is implemented on branch hf34-babylon-reference-look:
+- Babylon remains the default runtime; Three.js is explicit legacy fallback only.
+- Reference palette/metrics live in src/client/babylon/reference-style.ts.
+- ACES/Bloom/SSAO tuning lives in src/client/babylon/rendering/reference-pipeline.ts.
+- Hero garden prefers local Quaternius glTF assets and falls back visually when absent.
+- Water uses Babylon MirrorTexture plus normal detail.
+- HF265 movement/collision layout remains authoritative and unchanged by HF34.
+
+## Completed
+- Babylon/WebGPU path with WebGL2 fallback.
+- Reference-style quantitative target and palette.
+- Quaternius-aware Babylon hero-garden rendering.
+- HF34 source regression test and CI branch coverage.
+
+## Known Issues
+- Quaternius assets must exist under public/assets/quaternius/nature for the highest quality path; run npm run assets:quaternius:hf265 when absent.
+- Final visual fidelity still requires fixed-camera screenshot comparison against the supplied reference image.
+- Legacy Three.js code remains packaged for explicit compatibility fallback.
 
 ## Next Actions
-1. Transfer authoritative text/source tree into GitHub: src, server, cloudflare worker, tests, scripts, package-lock and project configs.
-2. Externalize/reprovision large third-party assets through versioned asset registries and verified bootstrap scripts.
-3. Choose storage/bootstrap handling for project-owned large VRM/GLB/PBR assets that cannot be reproduced from public sources.
-4. Implement deterministic visualCapture camera/state presets for Spawn, Bridge, Pavilion, Forest, Character Front/Back, Equipment Closeup and Combat.
-5. Run npm ci, typecheck, build, Vitest and Playwright in a real remote runner.
-6. Deploy first remote preview and validate ?lookdev=1 against the real browser render.
-7. Connect captured PNGs to the HF27 perceptual visual-regression analyzer and approve initial reference baselines.
-8. Begin staged TSL material/post migration; keep WebGL2 fallback until visual-regression parity is proven.
-9. Enable pull-request CI only after the authoritative source tree is complete.
-
-## Cross-Conversation Resume Instruction
-In any new ChatGPT conversation:
-1. Open this repository.
-2. Read AGENTS.md.
-3. Read PROJECT_HANDOFF.md.
-4. Inspect the active branch and latest commits / draft PR.
-5. Continue from Current Work and Next Actions.
-6. Do not claim a verification passed unless its actual output was observed.
+1. Observe HF34 CI typecheck/build/test results.
+2. Capture Spawn / Bridge / Pavilion / Forest screenshots from Babylon.
+3. Compare captures to the reference metrics and image.
+4. Tune composition, tree placement, water framing and architecture silhouette without changing gameplay collision/movement.
+5. Merge only after the visual regression gate is acceptable.
 
 ## Session Handoff Rule
 Before ending a substantial development session, update:
