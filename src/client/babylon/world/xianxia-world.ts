@@ -15,7 +15,7 @@ import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
 import { VertexBuffer } from '@babylonjs/core/Buffers/buffer';
 import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData';
 import { Layer } from '@babylonjs/core/Layers/layer';
-import type { Scene } from '@babylonjs/core/scene';
+import { Scene } from '@babylonjs/core/scene';
 import { HF265_NATURE_PLACEMENTS,HF265_POND,HF265_SPAWN,HF265_WORLD_HALF,hf265TerrainHeight } from '../../../shared/data/hf265-world-layout';
 import { XIANXIA_REFERENCE_20260926 as REF } from '../reference-style';
 
@@ -47,8 +47,9 @@ function createSky(scene:Scene){
   gradient.addColorStop(.76,'#8FB4C8');
   gradient.addColorStop(1,'#5F8196');
   ctx.fillStyle=gradient;ctx.fillRect(0,0,8,512);texture.update(false);
-  const layer=new Layer('HF27_SkyGradient',texture,scene,true);
-  layer.alpha=1;
+  const layer=new Layer('HF27_SkyGradient',null,scene,true);
+  layer.texture=texture;
+  layer.color.a=1;
   return {layer,texture};
 }
 
