@@ -1,70 +1,140 @@
 import { Color3 } from '@babylonjs/core';
 
 export interface ReferenceLookProfile {
-  version:1;
+  version:2;
   name:string;
-  environment:{clearColor:string;fogColor:string;fogDensity:number;exposure:number;contrast:number;environmentIntensity:number};
-  lighting:{sunColor:string;sunIntensity:number;sunAzimuth:number;sunElevation:number;skyColor:string;groundColor:string;hemisphereIntensity:number;coolFillColor:string;coolFillIntensity:number;warmRimColor:string;warmRimIntensity:number};
-  foliage:{mapleShadow:string;mapleBase:string;mapleLit:string;mapleHighlight:string;grassShadow:string;grassBase:string;grassLit:string};
-  water:{deep:string;shallow:string;reflection:number;roughness:number;alpha:number};
-  architecture:{woodDeep:string;woodBase:string;woodLit:string;roofDeep:string;roofLit:string;stoneDeep:string;stoneLit:string};
-  post:{bloomWeight:number;bloomThreshold:number;bloomKernel:number;vignetteWeight:number};
+  environment:{
+    clearColor:string;
+    fogColor:string;
+    fogStart:number;
+    fogEnd:number;
+    exposure:number;
+    contrast:number;
+    environmentIntensity:number;
+  };
+  lighting:{
+    sunColor:string;
+    sunIntensity:number;
+    sunAzimuth:number;
+    sunElevation:number;
+    skyColor:string;
+    groundColor:string;
+    hemisphereIntensity:number;
+    coolFillColor:string;
+    coolFillIntensity:number;
+    warmRimColor:string;
+    warmRimIntensity:number;
+  };
+  foliage:{
+    mapleShadow:string;
+    mapleBase:string;
+    mapleLit:string;
+    mapleHighlight:string;
+    grassShadow:string;
+    grassBase:string;
+    grassLit:string;
+  };
+  water:{
+    deep:string;
+    shallow:string;
+    reflection:number;
+    roughness:number;
+    alpha:number;
+    normalStrength:number;
+  };
+  architecture:{
+    woodDeep:string;
+    woodBase:string;
+    woodLit:string;
+    roofDeep:string;
+    roofLit:string;
+    stoneDeep:string;
+    stoneLit:string;
+  };
+  post:{
+    bloomWeight:number;
+    bloomThreshold:number;
+    bloomKernel:number;
+    vignetteWeight:number;
+    vignetteStretch:number;
+    saturation:number;
+    highlightsHue:number;
+    highlightsDensity:number;
+    highlightsSaturation:number;
+    shadowsHue:number;
+    shadowsDensity:number;
+    shadowsSaturation:number;
+    sharpenEdgeAmount:number;
+    sharpenColorAmount:number;
+  };
 }
 
 export const P0_REFERENCE_PROFILE:ReferenceLookProfile={
-  version:1,
-  name:'P0 Reference Match · Xianxia Garden',
+  version:2,
+  name:'P0 Reference Match v2 · Xianxia Garden',
   environment:{
-    clearColor:'#9CCFE3',
-    fogColor:'#87AEBF',
-    fogDensity:0.0027,
-    exposure:0.83,
-    contrast:1.38,
-    environmentIntensity:0.64
+    clearColor:'#CFE7F2',
+    fogColor:'#8FAFC1',
+    fogStart:22,
+    fogEnd:72,
+    exposure:1.02,
+    contrast:1.18,
+    environmentIntensity:0.72
   },
   lighting:{
-    sunColor:'#F4BC91',
-    sunIntensity:3.05,
+    sunColor:'#F3D2BF',
+    sunIntensity:2.65,
     sunAzimuth:38,
-    sunElevation:46,
-    skyColor:'#B7D7E3',
-    groundColor:'#1F313A',
-    hemisphereIntensity:0.24,
-    coolFillColor:'#6796AA',
-    coolFillIntensity:0.18,
-    warmRimColor:'#D3795B',
-    warmRimIntensity:0.22
+    sunElevation:48,
+    skyColor:'#C7E0EB',
+    groundColor:'#1C3B4A',
+    hemisphereIntensity:0.37,
+    coolFillColor:'#547A8E',
+    coolFillIntensity:0.24,
+    warmRimColor:'#D89E86',
+    warmRimIntensity:0.16
   },
   foliage:{
-    mapleShadow:'#461A1C',
-    mapleBase:'#842925',
-    mapleLit:'#C94935',
-    mapleHighlight:'#EA805B',
-    grassShadow:'#273B31',
-    grassBase:'#425D3C',
-    grassLit:'#738455'
+    mapleShadow:'#4B2725',
+    mapleBase:'#8F433E',
+    mapleLit:'#B66D5B',
+    mapleHighlight:'#D8AB98',
+    grassShadow:'#27382F',
+    grassBase:'#4B6048',
+    grassLit:'#7C8D65'
   },
   water:{
-    deep:'#0C3049',
-    shallow:'#1A617F',
-    reflection:1.02,
-    roughness:0.09,
-    alpha:0.88
+    deep:'#1C3B4A',
+    shallow:'#2A546D',
+    reflection:1.08,
+    roughness:0.14,
+    alpha:0.90,
+    normalStrength:0.34
   },
   architecture:{
-    woodDeep:'#2E1A15',
-    woodBase:'#553025',
-    woodLit:'#87573F',
-    roofDeep:'#2F414B',
-    roofLit:'#5E7783',
-    stoneDeep:'#45535A',
-    stoneLit:'#8C918B'
+    woodDeep:'#2B201C',
+    woodBase:'#4B322B',
+    woodLit:'#7F5A49',
+    roofDeep:'#263A45',
+    roofLit:'#607485',
+    stoneDeep:'#4E5352',
+    stoneLit:'#8D8D82'
   },
   post:{
-    bloomWeight:0.095,
-    bloomThreshold:0.93,
-    bloomKernel:40,
-    vignetteWeight:1.06
+    bloomWeight:0.075,
+    bloomThreshold:0.91,
+    bloomKernel:36,
+    vignetteWeight:0.74,
+    vignetteStretch:0.18,
+    saturation:9,
+    highlightsHue:28,
+    highlightsDensity:6,
+    highlightsSaturation:5,
+    shadowsHue:205,
+    shadowsDensity:5,
+    shadowsSaturation:7,
+    sharpenEdgeAmount:0.16,
+    sharpenColorAmount:0.92
   }
 };
 
