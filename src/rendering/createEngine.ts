@@ -9,8 +9,10 @@ export interface QinglanEngineResult {
 
 export async function createQinglanEngine(canvas:HTMLCanvasElement):Promise<QinglanEngineResult>{
   const nav=navigator as Navigator & { gpu?: unknown };
+  const params=new URLSearchParams(location.search);
+  const forceWebGL2=params.get('renderer')==='webgl2' || params.has('visualCapture');
 
-  if(window.isSecureContext && nav.gpu){
+  if(!forceWebGL2 && window.isSecureContext && nav.gpu){
     try{
       const engine=new WebGPUEngine(canvas,{
         antialias:true,
@@ -30,5 +32,10 @@ export async function createQinglanEngine(canvas:HTMLCanvasElement):Promise<Qing
     premultipliedAlpha:false,
     powerPreference:'high-performance'
   },true);
+
+  if(forceWebGL2){
+    console.info('[P0] WebGL2 forced for deterministic visual capture.');
+  }
+
   return {engine,backend:'webgl2'};
 }
