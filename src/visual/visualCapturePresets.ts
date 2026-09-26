@@ -3,8 +3,8 @@ import { ArcRotateCamera, Vector3 } from '@babylonjs/core';
 type Preset={alpha:number;beta:number;radius:number;target:[number,number,number]};
 
 const PRESETS:Record<string,Preset>={
-  spawn:{alpha:-1.43,beta:1.50,radius:30.0,target:[0,1.65,7.2]},
-  bridge:{alpha:-1.41,beta:1.49,radius:22.0,target:[0,1.35,3.8]},
+  spawn:{alpha:-1.43,beta:1.49,radius:34.5,target:[0,1.72,7.8]},
+  bridge:{alpha:-1.41,beta:1.49,radius:24.2,target:[0,1.42,4.4]},
   pavilion:{alpha:-1.18,beta:1.48,radius:19.2,target:[-8.5,2.0,8.5]},
   forest:{alpha:-1.48,beta:1.48,radius:20.2,target:[10.0,2.35,7.7]},
   'character-front':{alpha:-1.57,beta:1.48,radius:11.8,target:[0,1.7,1.5]},
