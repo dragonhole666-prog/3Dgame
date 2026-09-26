@@ -3,7 +3,7 @@ import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
 import { ShadowGenerator } from '@babylonjs/core/Lights/Shadows/shadowGenerator';
 import { Color3,Color4 } from '@babylonjs/core/Maths/math.color';
-import { Matrix,Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Plane } from '@babylonjs/core/Maths/math.plane';
 import { PBRMaterial } from '@babylonjs/core/Materials/PBR/pbrMaterial';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
@@ -96,6 +96,15 @@ function createPavilion(scene:Scene,shadow:ShadowGenerator,x:number,z:number,sca
   return root;
 }
 
+function cylinderBetween(scene:Scene,a:Vector3,b:Vector3,diameter:number,material:PBRMaterial,parent:TransformNode){
+  const mid=a.add(b).scale(.5),direction=b.subtract(a),length=direction.length();
+  const mesh=MeshBuilder.CreateCylinder('bridge-rail',{height:length,diameter,tessellation:8},scene);
+  mesh.position=mid;mesh.material=material;mesh.parent=parent;
+  const up=new Vector3(0,1,0),normal=direction.normalize(),axis=Vector3.Cross(up,normal),dot=Math.max(-1,Math.min(1,Vector3.Dot(up,normal))),angle=Math.acos(dot);
+  if(axis.lengthSquared()>.000001)mesh.rotate(axis.normalize(),angle);
+  return mesh;
+}
+
 function createBridge(scene:Scene,shadow:ShadowGenerator){
   const root=new TransformNode('HF27_Arched_Bridge',scene);
   const stone=pbr('HF27_BridgeStone','#AAA69D',scene,.86,0);
@@ -112,7 +121,7 @@ function createBridge(scene:Scene,shadow:ShadowGenerator){
     const post=MeshBuilder.CreateCylinder('bridge-post',{height:.86,diameterTop:.18,diameterBottom:.24,tessellation:8},scene);post.position.set(HF265_POND.x+x,y,HF265_POND.z+side*1.48);post.material=rail;addShadow(shadow,post);post.parent=root;
     if(i<10){const nt=(i+1)/10,nx=-9.5+nt*19,narch=Math.sin(Math.PI*nt)*2.15,ny=hf265TerrainHeight(HF265_POND.x+nx,HF265_POND.z)+1.12+narch;
       const a=new Vector3(HF265_POND.x+x,y+.37,HF265_POND.z+side*1.48),b=new Vector3(HF265_POND.x+nx,ny,HF265_POND.z+side*1.48),mid=a.add(b).scale(.5),len=Vector3.Distance(a,b);
-      const bar=MeshBuilder.CreateCylinder('bridge-rail',{height:len,diameter:.13,tessellation:8},scene);bar.position=mid;bar.material=rail;bar.parent=root;bar.alignWithNormal(b.subtract(a).normalize());bar.rotate(Vector3.Right(),Math.PI/2);addShadow(shadow,bar);
+      const bar=cylinderBetween(scene,a,b,.13,rail,root);addShadow(shadow,bar);
     }
   }
   return root;
