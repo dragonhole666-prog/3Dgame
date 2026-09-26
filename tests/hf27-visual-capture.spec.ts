@@ -23,6 +23,7 @@ test('P0 fixed-camera visual capture suite',async({page})=>{
   await expect(page.locator('#app')).toBeVisible();
   await expect(page.locator('#qinglan-canvas')).toBeVisible();
   expect(await page.locator('.boot-error').count(),'P0 boot error').toBe(0);
+  expect(await page.evaluate(()=>document.documentElement.dataset.qinglanRenderer)).toBe('babylon');
 
   for(const capture of plan.captures){
     await page.evaluate((id)=>{
@@ -31,7 +32,7 @@ test('P0 fixed-camera visual capture suite',async({page})=>{
       app.setVisualCapturePreset(id);
     },capture.id);
 
-    await page.waitForTimeout(650);
+    await page.waitForTimeout(plan.settleMs);
     await page.screenshot({
       path:`${outDir}/${capture.id}.png`,
       fullPage:false
