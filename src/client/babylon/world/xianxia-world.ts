@@ -194,17 +194,17 @@ function tintImportedMaterial(material:PBRMaterial|StandardMaterial,p:HF265Place
   if(material instanceof PBRMaterial){
     material.metallic=0;
     material.environmentIntensity=.72;
-    material.roughness=stone?.90:leaves?.74:bark?.88:.78;
+    material.roughness=stone ? .90 : (leaves ? .74 : (bark ? .88 : .78));
     if(leaves){
       const target=p.tint==='coral'?REF.palette.mapleBright:p.tint==='peach'?REF.palette.maplePeach:p.tint==='cool'?REF.palette.foliageDeep:REF.palette.foliageMid;
-      mixColor(material.albedoColor,target,p.tint==='coral'||p.tint==='peach'?.48:.34);
+      mixColor(material.albedoColor,target,(p.tint==='coral'||p.tint==='peach') ? .48 : .34);
       material.backFaceCulling=false;
     }else if(bark)mixColor(material.albedoColor,REF.palette.timberDark,.30);
     else if(stone)mixColor(material.albedoColor,REF.palette.stoneWarm,.28);
   }else{
     if(leaves){
       const target=p.tint==='coral'?REF.palette.mapleBright:p.tint==='peach'?REF.palette.maplePeach:p.tint==='cool'?REF.palette.foliageDeep:REF.palette.foliageMid;
-      mixColor(material.diffuseColor,target,p.tint==='coral'||p.tint==='peach'?.48:.34);
+      mixColor(material.diffuseColor,target,(p.tint==='coral'||p.tint==='peach') ? .48 : .34);
       material.backFaceCulling=false;
     }else if(bark)mixColor(material.diffuseColor,REF.palette.timberDark,.30);
     else if(stone)mixColor(material.diffuseColor,REF.palette.stoneWarm,.28);
