@@ -72,6 +72,16 @@ Pavilion and bridge must remain warm/cool balanced:
 - stone: warm grey with cool ambient side
 - no saturated yellow "gold" unless used as a small metal accent
 
+## Measured reference anchors
+The supplied 1200×675 reference frame was sampled as a tonal target. Dominant anchors used by the v2 profile include:
+- deep water / cool shadow: `#1C3B4A`
+- cyan-blue middle value: `#2A546D`
+- pale sky: `#CFE7F2`
+- maple/coral middle value: `#8F433E`
+- warm peach highlight: `#D8AB98`
+
+These anchors are not applied as flat colors. PBR response, light direction, reflection, fog and ACES/image processing determine the final on-screen color.
+
 ## P0 Reference Profile
 The checked-in source of truth is:
 - `src/rendering/referenceProfile.ts`
@@ -92,7 +102,7 @@ P0 visual architecture is accepted only when all are true:
 - `?lookdev=1` can tune the main art-direction parameters live.
 - water reflection, warm/cool lighting, fog depth and bloom are independently tunable.
 - visual regression can capture and compare PNG output.
-- no new Three.js runtime rendering code is required for the P0 scene.
+- `npm run verify:babylon-only` passes; Three.js/TSL/React-Three runtime code is absent.
 
 ## Important scope boundary
-P0 proves the new Babylon rendering/look-development foundation. Legacy gameplay, combat, inventory, networking, character animation and all historical content systems are separate migration work unless they are explicitly ported into this branch.
+P0 proves the new Babylon rendering/look-development foundation. Legacy gameplay, combat, inventory, networking, character animation and historical content remain separate migration work. They must be ported to the Babylon-only runtime rather than restored behind a renderer compatibility layer.
