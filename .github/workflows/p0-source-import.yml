@@ -1,0 +1,49 @@
+name: P0 Authoritative Source Import
+
+on:
+  push:
+    branches:
+      - p0-babylon-migration
+    paths:
+      - '.bootstrap/hf265-source-bootstrap.zip'
+      - '.bootstrap/import.trigger'
+      - '.github/workflows/p0-source-import.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-source:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: p0-babylon-migration
+          fetch-depth: 0
+
+      - name: Expand HF26.5 authoritative source without overwriting Babylon P0 files
+        run: |
+          test -f .bootstrap/hf265-source-bootstrap.zip
+          unzip -n .bootstrap/hf265-source-bootstrap.zip -d .
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+
+      - name: Synchronize package lock for Babylon migration
+        run: npm install --package-lock-only --ignore-scripts
+
+      - name: Commit imported source
+        run: |
+          git config user.name "qinglan-source-import"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No source changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(p0): import authoritative HF26.5 source tree"
+          git push origin HEAD:p0-babylon-migration
