@@ -81,8 +81,10 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
     material.sheen.roughness=.74;
     material.sheen.albedoScaling=true;
   }
-  mapleLit.emissiveColor=color3(profile.foliage.mapleLit).scale(.025);
-  mapleHighlight.emissiveColor=color3(profile.foliage.mapleHighlight).scale(.045);
+  mapleShadow.emissiveColor=color3(profile.foliage.mapleShadow).scale(.035);
+  mapleBase.emissiveColor=color3(profile.foliage.mapleBase).scale(.055);
+  mapleLit.emissiveColor=color3(profile.foliage.mapleLit).scale(.075);
+  mapleHighlight.emissiveColor=color3(profile.foliage.mapleHighlight).scale(.095);
 
   const roof=pbr('P0_RoofMaterial',scene,profile.architecture.roofDeep,.58,0,.68);
   const roofLit=pbr('P0_RoofLitMaterial',scene,profile.architecture.roofLit,.52,0,.72);
@@ -462,8 +464,8 @@ function createMaple(
     const radius=(.30+noise(variant+2,i)*1.28)*scale;
     const yLift=(noise(variant+5,i)-.43)*1.22*scale;
     const blob=MeshBuilder.CreatePlane('P0_MapleFoliage',{
-      width:1.24*scale,
-      height:.86*scale,
+      width:1.48*scale,
+      height:1.02*scale,
       sideOrientation:Mesh.DOUBLESIDE
     },scene);
     blob.position.set(
@@ -768,15 +770,15 @@ export function createP0ReferenceWorld(
   createKarstMountain(scene,materials.mountainNear,16,36,8,15,6,12);
 
   createBridge(scene,materials,shadow);
-  createPavilion(scene,materials,shadow,-10.2,8.4,1.05);
-  createPavilion(scene,materials,shadow,8.8,13.2,.72);
+  createPavilion(scene,materials,shadow,-9.8,8.2,1.28);
+  createPavilion(scene,materials,shadow,8.8,13.0,.78);
 
   createBankPatch(scene,materials.grass,-13.7,4.8,1.28,.68,-.12);
   createBankPatch(scene,materials.grassLit,13.8,5.0,1.22,.72,.10);
 
   const maples=[
-    [-13.8,4.4,1.78,2],[-8.0,11.0,1.14,1],[-15.2,13.8,1.18,3],
-    [11.8,4.2,1.94,0],[14.8,8.4,1.12,2],[11.8,13.6,.94,1],
+    [-13.2,3.8,2.22,2],[-8.0,11.0,1.18,1],[-15.2,13.8,1.22,3],
+    [12.2,3.5,2.52,0],[14.8,8.4,1.18,2],[11.8,13.6,1.00,1],
     [-3.8,15.3,.88,2],[4.2,15.4,.94,0]
   ] as const;
   maples.forEach(([x,z,s,v])=>createMaple(scene,materials,shadow,x,z,s,v));
@@ -788,12 +790,12 @@ export function createP0ReferenceWorld(
   createGrassTufts(scene,materials);
 
   const lakeBed=MeshBuilder.CreateDisc('P0_LakeBed',{
-    radius:25,
+    radius:32,
     tessellation:96,
     sideOrientation:Mesh.DOUBLESIDE
   },scene);
   lakeBed.rotation.x=Math.PI*.5;
-  lakeBed.scaling.y=.88;
+  lakeBed.scaling.y=.96;
   lakeBed.position.set(0,.015,5.0);
   lakeBed.material=materials.lakeDeep;
   lakeBed.receiveShadows=true;
@@ -824,12 +826,12 @@ export function createP0ReferenceWorld(
   materials.water.bumpTexture=waterNormal;
 
   const water=MeshBuilder.CreateDisc('P0_Lake',{
-    radius:25,
+    radius:32,
     tessellation:128,
     sideOrientation:Mesh.DOUBLESIDE
   },scene);
   water.rotation.x=Math.PI*.5;
-  water.scaling.y=.88;
+  water.scaling.y=.96;
   water.position.set(0,.09,5.0);
   water.material=materials.water;
   water.receiveShadows=true;
@@ -859,8 +861,10 @@ export function createP0ReferenceWorld(
     materials.mapleBase.albedoColor=color3(next.foliage.mapleBase);
     materials.mapleLit.albedoColor=color3(next.foliage.mapleLit);
     materials.mapleHighlight.albedoColor=color3(next.foliage.mapleHighlight);
-    materials.mapleLit.emissiveColor=color3(next.foliage.mapleLit).scale(.025);
-    materials.mapleHighlight.emissiveColor=color3(next.foliage.mapleHighlight).scale(.045);
+    materials.mapleShadow.emissiveColor=color3(next.foliage.mapleShadow).scale(.035);
+    materials.mapleBase.emissiveColor=color3(next.foliage.mapleBase).scale(.055);
+    materials.mapleLit.emissiveColor=color3(next.foliage.mapleLit).scale(.075);
+    materials.mapleHighlight.emissiveColor=color3(next.foliage.mapleHighlight).scale(.095);
 
     materials.lakeDeep.albedoColor=color3(next.water.deep);
     materials.water.albedoColor=color3(next.water.shallow);
