@@ -106,7 +106,7 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
   const groundDetail=createDetailTexture(scene,'P0_GroundDetail','ground');
   const stoneDetail=createDetailTexture(scene,'P0_StoneDetail','stone');
   const woodDetail=createDetailTexture(scene,'P0_WoodDetail','wood');
-  const foliageDetail=createDetailTexture(scene,'P0_FoliageDetail','foliage');
+  const leafCluster=createLeafClusterTexture(scene);
 
   for(const material of [ground,grassShadow,grass,grassLit]){
     applySurfaceDetail(material,groundDetail,8.5,8.5);
@@ -118,7 +118,12 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
     applySurfaceDetail(material,woodDetail,2.4,5.6);
   }
   for(const material of [mapleShadow,mapleBase,mapleLit,mapleHighlight]){
-    applySurfaceDetail(material,foliageDetail,4.2,3.5);
+    material.albedoTexture=leafCluster;
+    material.useAlphaFromAlbedoTexture=true;
+    material.transparencyMode=Material.MATERIAL_ALPHATEST;
+    material.alphaCutOff=.32;
+    material.backFaceCulling=false;
+    material.twoSidedLighting=true;
   }
 
   return {
@@ -200,6 +205,58 @@ function applySurfaceDetail(material:PBRMaterial,texture:Texture,uScale:number,v
   texture.vScale=vScale;
   material.albedoTexture=texture;
 }
+
+function createLeafClusterTexture(scene:Scene){
+  const size=160;
+  const texture=new DynamicTexture('P0_MapleLeafCluster',{width:size,height:size},scene,false);
+  const ctx=texture.getContext() as unknown as CanvasRenderingContext2D;
+  ctx.clearRect(0,0,size,size);
+
+  const drawLeaf=(cx:number,cy:number,angle:number,s:number)=>{
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(angle);
+    ctx.scale(s,s);
+    ctx.beginPath();
+    ctx.moveTo(0,-18);
+    ctx.bezierCurveTo(11,-13,15,-5,12,2);
+    ctx.bezierCurveTo(9,10,3,15,0,20);
+    ctx.bezierCurveTo(-3,15,-9,10,-12,2);
+    ctx.bezierCurveTo(-15,-5,-11,-13,0,-18);
+    ctx.closePath();
+    ctx.fillStyle='rgba(255,255,255,0.98)';
+    ctx.fill();
+    ctx.restore();
+  };
+
+  drawLeaf(80,80,0,.92);
+  for(let i=0;i<10;i++){
+    const a=i/10*Math.PI*2+(i%2)*.12;
+    const radius=31+(i%3)*4;
+    drawLeaf(
+      80+Math.cos(a)*radius,
+      80+Math.sin(a)*radius*.72,
+      a+Math.PI*.5,
+      .58+(i%4)*.07
+    );
+  }
+  for(let i=0;i<6;i++){
+    const a=i/6*Math.PI*2+.35;
+    drawLeaf(
+      80+Math.cos(a)*17,
+      80+Math.sin(a)*13,
+      a,
+      .48
+    );
+  }
+
+  texture.update(false);
+  texture.hasAlpha=true;
+  texture.wrapU=Texture.CLAMP_ADDRESSMODE;
+  texture.wrapV=Texture.CLAMP_ADDRESSMODE;
+  return texture;
+}
+
 
 function createSkyBackdrop(scene:Scene){
   const texture=new DynamicTexture('P0_SkyGradient',{width:32,height:512},scene,false);
@@ -404,18 +461,22 @@ function createMaple(
     const angle=i/92*Math.PI*2+variant*.41;
     const radius=(.30+noise(variant+2,i)*1.28)*scale;
     const yLift=(noise(variant+5,i)-.43)*1.22*scale;
-    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.31*scale,subdivisions:2,flat:false},scene);
+    const blob=MeshBuilder.CreatePlane('P0_MapleFoliage',{
+      width:1.24*scale,
+      height:.86*scale,
+      sideOrientation:Mesh.DOUBLESIDE
+    },scene);
     blob.position.set(
       center.x+Math.cos(angle)*radius,
       center.y+yLift,
       center.z+Math.sin(angle)*radius*.70
     );
-    const size=.56+noise(variant+9,i)*.56;
-    blob.scaling.set(size*1.52,size*.50,size*1.20);
-    blob.rotation.set(noise(variant,80+i)*.45,angle,noise(variant,120+i)*.38);
+    const size=.62+noise(variant+9,i)*.58;
+    blob.scaling.set(size*(1.05+noise(variant+13,i)*.34),size,size);
+    blob.rotation.z=(noise(variant,120+i)-.5)*.72;
+    blob.billboardMode=Mesh.BILLBOARDMODE_ALL;
     blob.material=foliageMaterials[(i+variant)%foliageMaterials.length];
-    blob.receiveShadows=true;
-    shadow.addShadowCaster(blob);
+    blob.receiveShadows=false;
   }
 }
 
