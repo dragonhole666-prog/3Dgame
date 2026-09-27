@@ -4,131 +4,79 @@
 dragonhole666-prog/3Dgame
 
 ## Active Branch
-hf27-remote-visual-pipeline
+hf35-fullgame-babylon-recovery
 
 ## Current Target
-HF34 Babylon.js Reference-Look Lock
+Recover the complete historical game while migrating every active runtime rendering subsystem to Babylon.js only.
 
-## Mission
-Run the game primarily on Babylon.js and converge the shipped rendering language on the supplied xianxia garden reference:
+## Non-negotiable end state
+- Preserve original player characters, equipment, customization, animations, skills, monsters, NPCs, world/map data, combat rules, UI, networking and server authority.
+- Babylon.js is the only shipping/runtime 3D engine.
+- No Three.js fallback, compatibility bridge or selectable legacy renderer.
+- WebGPU first where stable; Babylon WebGL2 fallback only.
+- Remove Three.js / three-pathfinding / @pixiv/three-vrm dependencies after their remaining migration-reference files are ported or quarantined out of the build.
+- Visual LookDev work must never replace or delete gameplay content.
 
-Babylon.js / WebGPU / WebGL2 fallback
-+ Quaternius hero-garden assets
-+ ACES reference grade
-+ reflective water / atmospheric depth
-+ fixed-camera visual regression
-+ remote preview and CI
+## Recovery source hierarchy
+1. HF34 / HF26.5 full-game branch is authoritative for gameplay and authored content.
+2. HF27 visual branch is reference material for newer Babylon LookDev / screenshot work only.
+3. HF35 is the integration branch: full game + Babylon-native rendering.
 
-## Current State
-GitHub is now the remote source-of-truth target and the HF27 feature branch is active.
+## Completed in HF35
+- Normal boot now loads `BabylonGame`; old `client/core/game.ts` is not selected by runtime flags or fallback.
+- Shared/server gameplay authority remains intact.
+- Player, NPC and monster network snapshots are projected into Babylon actors.
+- Player/NPC/monster GLB/VRM containers load through Babylon `SceneLoader.LoadAssetContainerAsync`.
+- Original avatar candidate selection remains wired into the Babylon actor loader.
+- `three-pathfinding` active navigation path was replaced by renderer-independent A* navigation.
+- Babylon-native UI preview path added.
+- Babylon-native equipment attachment layer added using actor sockets and shared equipment data.
+- Babylon actor runtime now exposes humanoid socket nodes for equipment.
+- Player equipment is synchronized from authoritative snapshot equipment onto Babylon actors.
+- Babylon-native skill presentation runtime added; cast/hit events now produce Babylon effects from shared skill definitions.
+- Active-runtime architecture gate rejects Three.js / three-pathfinding / @pixiv/three-vrm imports reachable from the shipping Babylon entry.
+- Full-game preservation gate checks network snapshots, players, monsters, NPCs, shared skills and Babylon asset loading.
 
-The authoritative local baseline available to this work session is P0.26.8 / HF26.5 Visual Reboot. The complete HF26.5 source/assets have not yet been transferred into GitHub; the branch currently contains HF27 bootstrap/configuration files and new remote-visual tooling.
+## Verification
+Observed before the latest skill-FX commit:
+- HF35 CI reached TypeScript typecheck and exposed equipment typing errors.
+- Those equipment typing errors were fixed in commits:
+  - `fe5782f51800ac05ce971a8694c3a86939367968`
+  - `6fe9b79dd5b21363f395aae1bdbcac88035bedd2`
+- A subsequent CI run showed TypeScript typecheck PASS and moved into production build.
 
-## Known HF26.x Direction
-- Legacy uploaded map path was being removed.
-- Scene direction moved toward a rebuilt xianxia hero garden.
-- Quaternius nature assets and Poly Haven assets were selected as preferred free sources.
-- Visual direction emphasizes cool sky/water, coral-orange foliage, warm architecture, layered blue-grey haze, and differentiated PBR materials.
-- Equipment needs explicit material-role mapping rather than broad name-based recoloring.
-- World placement/collision/navigation/camera collision should converge on shared placement data.
+Latest migration commits:
+- `c4fd64349814177389982af65859f4b4971480f6` — Babylon-native skill FX runtime.
+- `d1fac9ef33da1fd817a9c15e7743b828560fa693` — wire authoritative skill events into Babylon FX runtime.
 
-## HF27 Architecture Target
-GitHub
-→ source changes
-→ typecheck/tests/build
-→ remote preview
-→ fixed-camera screenshots
-→ reference comparison
-→ LookDev tuning
-→ visual regression gate
-→ PR / merge
+The CI run for the latest head must still be observed before claiming the head is green.
 
-## Completed
-- GitHub write access verified for dragonhole666-prog/3Dgame.
-- README.md, AGENTS.md and this handoff document created.
-- Development branch hf27-remote-visual-pipeline created.
-- Draft PR #1 opened for the HF27 bootstrap; it must remain draft until the authoritative source is migrated and browser verification passes.
-- HF27 serializable visual profile added.
-- Runtime Visual LookDev panel added; enable with ?lookdev=1.
-- LookDev controller can tune environment, lights, bloom and cinematic-grade uniforms at runtime.
-- WebGPU capability probe added. WebGL2 remains production renderer until TSL/post-processing parity is reached.
-- HF27 visual baseline profile and screenshot plan added.
-- Playwright visual-capture configuration and capture test scaffold added.
-- Dependency-free PNG perceptual visual-regression analyzer added.
-- Oklab, luminance, chroma, highlight/shadow share and warm/cool-balance thresholds added.
-- Manual GitHub Actions remote visual gate added.
-- HF27 remote-pipeline and visual-regression documentation added.
-- Authoritative source-migration plan added.
-- Source-import status document added.
-- Local HF26.5 integration baseline was extracted and checked with existing project verifiers.
+## Known Issues / Remaining Three migration
+Legacy Three.js source files still exist as migration references, including examples such as:
+- `src/client/core/game.ts`
+- `src/client/character/character.ts`
+- `src/client/character/monster-model.ts`
+- `src/client/rendering/xianxia-skill-fx.ts`
+- `src/client/world/world-renderer.ts`
 
-## Verification Results
-Observed local verification after HF27 integration:
-- node scripts/verify-current.mjs → PASS
-- node scripts/verify-package-integrity.mjs → PASS
-- HF27 JSON / Node syntax checks → PASS
-- focused HF27 TypeScript parse produced no HF27 errors after excluding unresolved third-party-module errors caused by node_modules being unavailable
+They are not allowed to become runtime fallbacks. Their required behavior must be ported subsystem-by-subsystem to Babylon, then the legacy files/dependencies removed.
 
-Not yet verified:
-- npm typecheck
-- npm build
-- Vitest suite
-- Playwright screenshot suite
-- deployed browser preview
-- end-to-end visual-regression comparison against captured browser output
-
-Reason: npm dependency installation did not complete in the local tool environment, so node_modules was not available.
-
-## Source Migration Inventory
-Observed from the extracted HF26.5 baseline:
-- approximately 478 files total
-- approximately 299 MB extracted
-- 337 text/source/config files
-- 1,691,928 bytes of text/source/config content
-
-The size difference is primarily VRM/GLB/PBR and other binary assets.
-
-## Known Issues
-- Complete HF26.5 source/server/tests/scripts/package-lock/assets are not yet in GitHub.
-- Heavy binary VRM/GLB/PBR assets make a direct one-shot repository transfer unsuitable through the current chat GitHub connector.
-- Screenshot URLs exist, but deterministic camera-preset handling for visualCapture=spawn/bridge/pavilion/etc. still needs to be wired into the actual game runtime.
-- No public remote preview URL has been deployed yet.
-- WebGPU is capability-detected only; the live renderer is not yet migrated to WebGPU.
-- CI remains workflow_dispatch-only until the authoritative source tree is present.
-
-## Current Work
-HF34 reference lock is implemented on branch hf34-babylon-reference-look:
-- Babylon remains the default runtime; Three.js is explicit legacy fallback only.
-- Reference palette/metrics live in src/client/babylon/reference-style.ts.
-- ACES/Bloom/SSAO tuning lives in src/client/babylon/rendering/reference-pipeline.ts.
-- Hero garden prefers local Quaternius glTF assets and falls back visually when absent.
-- Water uses Babylon MirrorTexture plus normal detail.
-- HF265 movement/collision layout remains authoritative and unchanged by HF34.
-
-## Completed
-- Babylon/WebGPU path with WebGL2 fallback.
-- Reference-style quantitative target and palette.
-- Quaternius-aware Babylon hero-garden rendering.
-- HF34 source regression test and CI branch coverage.
-
-## Known Issues
-- Quaternius assets must exist under public/assets/quaternius/nature for the highest quality path; run npm run assets:quaternius:hf265 when absent.
-- Final visual fidelity still requires fixed-camera screenshot comparison against the supplied reference image.
-- Legacy Three.js code remains packaged for explicit compatibility fallback.
+`package.json` still contains `three`, `three-pathfinding`, `@pixiv/three-vrm` and `@types/three` temporarily because legacy reference files are still included in the TypeScript project. This is migration debt, not the target architecture.
 
 ## Next Actions
-1. Observe HF34 CI typecheck/build/test results.
-2. Capture Spawn / Bridge / Pavilion / Forest screenshots from Babylon.
-3. Compare captures to the reference metrics and image.
-4. Tune composition, tree placement, water framing and architecture silhouette without changing gameplay collision/movement.
-5. Merge only after the visual regression gate is acceptable.
+1. Observe/fix the latest HF35 CI until typecheck, build, Babylon runtime gate and full-game preservation gate all pass.
+2. Port locomotion / idle / run / attack / skill animation selection from legacy character code to Babylon `AnimationGroup` control.
+3. Port remaining skill-specific VFX behavior from the Three implementation into `BabylonSkillFx` without importing Three code.
+4. Port monster-specific presentation / boss animation behavior to Babylon actor controllers.
+5. Port any world/map rendering behavior still only represented by legacy Three world modules into `client/babylon/world`, preserving `shared/data/hf265-world-layout.ts` coordinates/collision.
+6. Quarantine/delete converted Three renderer files from the TypeScript build.
+7. Remove `three`, `three-pathfinding`, `@pixiv/three-vrm`, `@types/three` from package/package-lock.
+8. Run final repository-wide no-Three gate plus full-game browser smoke tests.
+9. Only after gameplay-preservation gates are stable, resume 90% visual-reference iteration on the full game.
 
 ## Session Handoff Rule
-Before ending a substantial development session, update:
-- Current Work
-- Completed
-- Known Issues
-- Next Actions
-- Verification Results
-
-This file is the primary cross-conversation continuation document.
+Before ending substantial work, update this file with:
+- migrated subsystem
+- remaining legacy subsystem
+- exact verification output
+- latest commit/run
