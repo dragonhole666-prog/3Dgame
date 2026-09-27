@@ -42,6 +42,7 @@ import { createBabylonReferencePipeline,type BabylonReferencePipeline } from '..
 import { createBabylonXianxiaWorld,type BabylonXianxiaWorld } from '../babylon/world/xianxia-world';
 import { BabylonActorFactory,type BabylonActorInstance } from '../babylon/actor-runtime';
 import { BabylonEquipmentLayer } from '../babylon/equipment-runtime';
+import { BabylonSkillFx } from '../babylon/skill-fx-runtime';
 
 type ActorEntry={
  instance?:BabylonActorInstance;
@@ -104,6 +105,7 @@ export class BabylonGame{
  characterCustomization:CharacterCustomization=loadCustomization();
 
  private readonly factory:BabylonActorFactory;
+ private readonly skillFx:BabylonSkillFx;
  private readonly actors=new Map<string,ActorEntry>();
  private readonly monsters=new Map<string,ActorEntry>();
  private readonly npcs=new Map<string,ActorEntry>();
@@ -191,6 +193,7 @@ export class BabylonGame{
   this.runtimeMaxPreset=this.hardwareCapability.maxPreset;
   this.graphics=clampGraphicsSettingsToCap(this.graphics,this.runtimeMaxPreset);saveGraphicsSettings(this.graphics);
   this.factory=new BabylonActorFactory(scene,world.shadow);
+  this.skillFx=new BabylonSkillFx(scene);
 
   const selectMat=new PBRMaterial('HF35_SelectMaterial',scene);
   selectMat.albedoColor=Color3.FromHexString('#E9C36E');selectMat.emissiveColor=Color3.FromHexString('#8B6822');selectMat.roughness=.45;
@@ -332,42 +335,14 @@ export class BabylonGame{
    const mine=event.target===snapshot.self.id;
    this.audio.play(mine?'hurt':'hit');
    this.ui.damage(event);if(mine&&(event.value??0)>0)this.ui.impact();
-   this.spawnImpact(event.x??snapshot.self.x,event.z??snapshot.self.z,event.skill);
+   if(this.graphics.vfx!=='off')this.skillFx.impact(event.x??snapshot.self.x,event.z??snapshot.self.z,event.skill);
   }else if(event.type==='cast'){
    if(event.actor===snapshot.self.id)this.audio.play(SKILL_DEFINITIONS[event.skill??'']?.element==='lightning'?'thunder':'swing');
-   this.spawnCast(event);
+   if(this.graphics.vfx!=='off')this.skillFx.cast(event,snapshot);
   }else if(event.type==='pickup'&&event.actor===snapshot.self.id)this.audio.play('loot');
   else if(event.type==='equip'&&event.actor===snapshot.self.id)this.audio.play('equip');
  }
 
- private spawnImpact(x:number,z:number,skill?:string){
-  if(this.graphics.vfx==='off')return;
-  const color=Color3.FromHexString(elementColor(skill)),y=heightAt(x,z)+.65;
-  const ring=MeshBuilder.CreateTorus('HF35_Impact',{diameter:1.2,thickness:.055,tessellation:36},this.scene);
-  const mat=new PBRMaterial('HF35_ImpactMat',this.scene);mat.albedoColor=color;mat.emissiveColor=color.scale(.9);mat.roughness=.25;ring.material=mat;ring.position.set(x,y,z);ring.rotation.x=Math.PI/2;ring.scaling.setAll(.25);
-  const light=new PointLight('HF35_ImpactLight',new Vector3(x,y+.3,z),this.scene);light.diffuse=color;light.intensity=3.4;light.range=7;
-  const born=performance.now();
-  const observer=this.scene.onBeforeRenderObservable.add(()=>{
-   const t=(performance.now()-born)/360;ring.scaling.setAll(.25+t*1.4);mat.alpha=Math.max(0,1-t);light.intensity=Math.max(0,3.4*(1-t));
-   if(t>=1){this.scene.onBeforeRenderObservable.remove(observer);ring.dispose(false,true);light.dispose();}
-  });
- }
-
- private spawnCast(event:GameEvent){
-  const snapshot=this.snapshot;if(!snapshot||this.graphics.vfx==='off')return;
-  const actor=snapshot.players.find(p=>p.id===event.actor)??(event.actor===snapshot.self.id?snapshot.self:undefined);
-  const monster=snapshot.monsters.find(m=>m.id===event.actor);
-  const x=event.originX??actor?.x??monster?.x??event.x??snapshot.self.x;
-  const z=event.originZ??actor?.z??monster?.z??event.z??snapshot.self.z;
-  const color=Color3.FromHexString(elementColor(event.skill)),y=heightAt(x,z)+1.15;
-  const orb=MeshBuilder.CreateSphere('HF35_CastOrb',{diameter:.34,segments:12},this.scene);
-  const mat=new PBRMaterial('HF35_CastMat',this.scene);mat.albedoColor=color;mat.emissiveColor=color;mat.roughness=.2;orb.material=mat;orb.position.set(x,y,z);
-  const born=performance.now(),duration=420;
-  const observer=this.scene.onBeforeRenderObservable.add(()=>{
-   const t=(performance.now()-born)/duration;orb.scaling.setAll(1+t*1.5);orb.position.y=y+Math.sin(t*Math.PI)*.55;mat.alpha=Math.max(0,1-t);
-   if(t>=1){this.scene.onBeforeRenderObservable.remove(observer);orb.dispose(false,true);}
-  });
- }
 
  pickup(id?:string){
   if(!this.snapshot)return;
