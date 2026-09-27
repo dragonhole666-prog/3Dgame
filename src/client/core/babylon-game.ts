@@ -52,6 +52,8 @@ type ActorEntry={
  targetX:number;
  targetZ:number;
  targetAngle:number;
+ equipment?:BabylonEquipmentLayer;
+ equipmentSig?:string;
 };
 
 type DropEntry={mesh:Mesh;id:string};
@@ -241,7 +243,14 @@ export class BabylonGame{
  private ensurePlayer(player:PublicPlayer,self=false){
   const map=this.actors,existing=map.get(player.id);
   if(existing){
-   existing.targetX=player.x;existing.targetZ=player.z;existing.targetY=heightAt(player.x,player.z);existing.targetAngle=player.angle;return;
+   existing.targetX=player.x;existing.targetZ=player.z;existing.targetY=heightAt(player.x,player.z);existing.targetAngle=player.angle;
+   const sig=equipmentSignature(player.equipment);
+   if(existing.instance&&sig!==existing.equipmentSig){
+    existing.equipment??=new BabylonEquipmentLayer(this.scene,existing.instance);
+    existing.equipment.sync(player.equipment);
+    existing.equipmentSig=sig;
+   }
+   return;
   }
   const entry:ActorEntry={loading:true,kind:'player',id:player.id,targetX:player.x,targetZ:player.z,targetY:heightAt(player.x,player.z),targetAngle:player.angle};
   map.set(player.id,entry);
@@ -250,6 +259,9 @@ export class BabylonGame{
    if(map.get(player.id)!==entry){instance.dispose();return;}
    entry.instance=instance;entry.loading=false;
    instance.root.position.set(entry.targetX,entry.targetY,entry.targetZ);instance.root.rotation.y=entry.targetAngle;
+   entry.equipment=new BabylonEquipmentLayer(this.scene,instance);
+   entry.equipment.sync(player.equipment);
+   entry.equipmentSig=equipmentSignature(player.equipment);
   });
  }
 
