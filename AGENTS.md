@@ -1,106 +1,53 @@
-# AGENTS.md — 青嵐志 / Qinglan Webgame
+# AGENTS.md — 青嵐志 / Qinglan Webgame HF35 Recovery
 
-## Project Goal
-Build and maintain a browser-based 3D xianxia game using a remote-first production workflow.
+## Non-negotiable goal
+Recover the complete historical game (player characters, equipment, animations, skills, monsters, NPCs, map/world, UI, networking, combat and server authority) while migrating the runtime to **Babylon.js only**.
 
-## Authoritative Stack
-- Babylon.js 9.28.0 is the primary game renderer/runtime.
-- WebGPU where supported, with Babylon WebGL2 fallback.
-- Three.js is legacy compatibility only and must require explicit ?engine=three.
-- New world rendering, materials, water, post-processing and LookDev work belongs in src/client/babylon/.
-- TypeScript
-- Vite
-- GitHub as source of truth
-- Remote preview deployment
-- Automated build/test/screenshot/visual-regression pipeline
+## Runtime engine policy
+- Babylon.js is the only allowed runtime 3D engine.
+- WebGPU first where stable; Babylon WebGL2 fallback is allowed.
+- Three.js, three-pathfinding, @pixiv/three-vrm, React Three Fiber, TSL and renderer compatibility bridges are forbidden in the shipping/runtime import graph.
+- Never replace or discard gameplay systems merely to simplify rendering migration.
+- Preserve shared gameplay data, server/network contracts, map coordinates, collision rules, combat numbers, skills, monsters, NPCs, equipment and character customization unless a change is explicitly required for Babylon parity.
+- Legacy Three files may exist only as temporary migration reference while being ported. They must never be selected by runtime flags or fallbacks and must be removed/quarantined from the final build.
 
-## Visual Production Workflow
-1. Modify source code/assets on a feature branch.
-2. Run build/typecheck/tests.
-3. Deploy a remote preview.
-4. Capture fixed-camera screenshots.
-5. Compare against reference visual targets.
-6. Tune lighting, materials, atmosphere, water, post-processing, composition.
-7. Re-run visual regression before merge.
+## Recovery source hierarchy
+1. Full historical gameplay/source/assets from HF34 / HF26.5 packages are authoritative for game features.
+2. HF27 visual branch is authoritative only for the newer Babylon LookDev/reference-match rendering work.
+3. HF35 combines both: full game behavior + Babylon-only rendering.
 
-## Visual Art Direction
-Target: realistic/dreamlike xianxia, not flat cartoon rendering.
+## Babylon migration mapping
+- THREE.Scene/WebGLRenderer -> Babylon Scene/Engine/WebGPUEngine.
+- PerspectiveCamera/OrbitControls -> FreeCamera/ArcRotateCamera or game camera controller.
+- Mesh/Geometry/Material -> Babylon Mesh/PBRMaterial.
+- GLTFLoader/VRMLoader -> Babylon SceneLoader/AssetContainer. VRM files are GLB containers; load with glTF plugin and ignore unsupported VRM extensions where necessary.
+- AnimationMixer/AnimationAction -> Babylon AnimationGroup/Skeleton/TransformNode animation.
+- EffectComposer/Bloom/SSAO/color grade -> Babylon DefaultRenderingPipeline/SSAO2/GlowLayer/ImageProcessing.
+- Three particle/VFX -> Babylon ParticleSystem/GPUParticleSystem/NodeMaterial/custom Babylon meshes.
+- Raycaster -> scene.pick / PickingInfo.
+- three-pathfinding -> engine-independent authoritative navigation or Babylon navmesh; server gameplay must not depend on a browser renderer.
+- InstancedMesh -> Babylon instances/thin instances.
 
-Core look:
-- cool cyan/blue sky and water
-- pale blue atmospheric haze
-- coral/orange-red maple foliage
-- warm timber and architectural accents
-- clean highlights and cool shadows
-- strong but controlled cool/warm separation
-- layered distant mountains and mist
-- cloth, metal, jade, skin treated as distinct material classes
+## Preservation gates
+A migration is not accepted unless:
+- original world/map data still loads;
+- player and NPCs are visible;
+- monsters are visible;
+- hotkey skills still resolve from shared skill data;
+- combat/network snapshots remain authoritative;
+- equipment/customization data remains readable;
+- Babylon-only architecture gate passes for the active runtime;
+- typecheck/build and browser smoke capture are observed.
 
-## Remote LookDev
-The project should expose a runtime Visual LookDev panel for:
-- sun intensity / temperature
-- environment exposure
-- fog density / color
-- foliage palette
-- water deep/shallow colors
-- Fresnel / reflection
-- material roughness / metalness / env response
-- post exposure / bloom / contrast / color grade
+## Visual direction
+Use the supplied xianxia garden reference as the LookDev target. Visual tuning must not delete gameplay content. Rendering quality work comes after gameplay-preservation gates.
 
-LookDev values must be serializable into a versioned visual profile.
+## Active branch
+hf35-fullgame-babylon-recovery
 
-## Fixed Visual Regression Cameras
-Minimum:
-- Spawn
-- Bridge
-- Pavilion
-- Forest
-- Character Front
-- Character Back
-- Equipment Closeup
-- Combat
-
-## Visual Metrics
-Track where useful:
-- Oklab color distance
-- hue distribution
-- chroma / saturation
-- luminance distribution
-- highlight clipping
-- shadow clipping
-- cool/warm separation
-
-## Asset Policy
-Preferred free sources:
-- Quaternius
-- Poly Haven
-
-Do not introduce assets without recording source and license in the repository.
-
-## Architecture Rules
-- UI metadata must have a single source of truth.
-- Shared network policy must be centralized.
-- Do not move new rendering work back into the legacy Three.js pipeline.
-- Do not use removed/deprecated Three.js Geometry/Face3 APIs in compatibility code.
-- Avoid per-frame object allocation in requestAnimationFrame hot paths.
-- Repeated foliage/rocks should use instancing where practical.
-- World visual placement, collision, navigation obstruction, and camera collision should derive from shared placement data where practical.
-- Do not reintroduce the legacy uploaded-map pipeline once removed.
-
-## Git Workflow
-- main = stable baseline
-- active development branch = hf34-babylon-reference-look
-- substantial work should be reviewed through PRs
-- never claim a test passed unless the actual command/output was observed
-
-## Cross-Conversation Continuity
-At the start of a new ChatGPT conversation:
-1. Open PROJECT_HANDOFF.md.
-2. Inspect current branch and latest commits.
-3. Read AGENTS.md.
-4. Continue from Current Work and Next Actions.
-5. Update PROJECT_HANDOFF.md before ending a substantial work session.
-
-## Verification Principle
-Never substitute inferred success for observed success.
-If build/test/preview cannot run, record the limitation explicitly.
+## Workflow
+1. Port one subsystem.
+2. Verify feature parity.
+3. Remove that subsystem's Three dependency.
+4. Run architecture/type/build/browser checks.
+5. Record status in PROJECT_HANDOFF.md.
