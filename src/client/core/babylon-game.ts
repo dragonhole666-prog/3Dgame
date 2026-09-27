@@ -41,6 +41,7 @@ import { createQinglanBabylonEngine,type BabylonBackend } from '../babylon/engin
 import { createBabylonReferencePipeline,type BabylonReferencePipeline } from '../babylon/rendering/reference-pipeline';
 import { createBabylonXianxiaWorld,type BabylonXianxiaWorld } from '../babylon/world/xianxia-world';
 import { BabylonActorFactory,type BabylonActorInstance } from '../babylon/actor-runtime';
+import { BabylonEquipmentLayer } from '../babylon/equipment-runtime';
 
 type ActorEntry={
  instance?:BabylonActorInstance;
@@ -57,6 +58,13 @@ type DropEntry={mesh:Mesh;id:string};
 
 const clamp=(v:number,min:number,max:number)=>Math.max(min,Math.min(max,v));
 const angleLerp=(a:number,b:number,t:number)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t;
+
+function equipmentSignature(equipment:PublicPlayer['equipment']){
+ return Object.entries(equipment)
+  .filter(([,item])=>!!item)
+  .map(([slot,item])=>slot+':'+item!.baseId+':'+item!.id)
+  .sort().join('|');
+}
 
 function elementColor(skillId:string|undefined){
  const element=skillId?SKILL_DEFINITIONS[skillId]?.element:undefined;
@@ -293,7 +301,7 @@ export class BabylonGame{
   const players=snapshot.players.some(p=>p.id===snapshot.self.id)?snapshot.players:[snapshot.self,...snapshot.players];
   const livePlayers=new Set(players.map(p=>p.id));
   for(const p of players)this.ensurePlayer(p,p.id===snapshot.self.id);
-  for(const [id,entry] of this.actors)if(!livePlayers.has(id)){entry.instance?.dispose();this.actors.delete(id);}
+  for(const [id,entry] of this.actors)if(!livePlayers.has(id)){entry.equipment?.dispose();entry.instance?.dispose();this.actors.delete(id);}
 
   const liveMonsters=new Set(snapshot.monsters.filter(m=>m.hp>0).map(m=>m.id));
   for(const m of snapshot.monsters)if(m.hp>0)this.ensureMonster(m);
@@ -518,7 +526,7 @@ export class BabylonGame{
 
  getCharacterCustomization(){return this.characterCustomization;}
  getAvatarCandidate(){return getAvatarCandidate();}
- setAvatarCandidate(id:AvatarCandidateId){saveAvatarCandidate(id);const self=this.snapshot?.self;if(self){const old=this.actors.get(self.id);old?.instance?.dispose();this.actors.delete(self.id);this.ensurePlayer(self,true);}}
+ setAvatarCandidate(id:AvatarCandidateId){saveAvatarCandidate(id);const self=this.snapshot?.self;if(self){const old=this.actors.get(self.id);old?.equipment?.dispose();old?.instance?.dispose();this.actors.delete(self.id);this.ensurePlayer(self,true);}}
  setSelfEquipmentPreview(_enabled:boolean){}
  setCharacterCreatorView(view:'none'|'face'|'body'|'full'){
   if(view!=='none'&&this.creatorView==='none')this.creatorRestore={radius:this.world.camera.radius,beta:this.world.camera.beta};
@@ -556,7 +564,7 @@ export class BabylonGame{
 
  dispose(){
   clearInterval(this.movementHeartbeat);window.removeEventListener('resize',this.resize);this.input?.dispose();this.connection.close();
-  for(const entry of [...this.actors.values(),...this.monsters.values(),...this.npcs.values()])entry.instance?.dispose();
+  for(const entry of [...this.actors.values(),...this.monsters.values(),...this.npcs.values()]){entry.equipment?.dispose();entry.instance?.dispose();}
   for(const d of this.drops.values())d.mesh.dispose(false,true);
   this.post.dispose();this.world.dispose();this.scene.dispose();this.engine.dispose();this.canvas.remove();this.overlay.remove();
  }
