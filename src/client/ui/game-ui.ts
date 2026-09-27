@@ -1,4 +1,3 @@
-import type { Game } from '../core/game';
 import type { GameEvent,ItemInstance,Snapshot,Slot } from '../../shared/types';
 import { distance } from '../../shared/types';
 import { ITEMS } from '../../shared/data/equipment';
@@ -11,7 +10,7 @@ import { resolveSkillHotbar, weaponCombatIdentity } from '../../shared/combat/we
 import { EFFECTS } from '../../shared/data/effects';
 import { itemStats } from '../../shared/domains/item';
 import { salvageYield } from '../../shared/domains/salvage';
-import { ModelPreview } from '../rendering/preview';
+import { ModelPreview } from '../rendering/babylon-preview';
 import { icon,escapeHtml as esc } from './icons';
 import { drawMap } from './map-canvas';
 import { FUNCTION_PANEL_IDS,PANEL_DEFINITIONS,panelHotkeyLabel,type PanelId as Panel } from './panel-registry';
@@ -23,9 +22,48 @@ import { CLOUD_RUNTIME } from '../networking/runtime-endpoints';
 import { graphicsPresetLabel,presetAllowed,type FixedGraphicsPreset } from '../core/graphics-capability';
 import { validateCharacterName } from '../../shared/identity/character-name';
 import { activeLocalCharacterToken,clearActiveLocalCharacter,forgetLocalCharacter,legacyCharacterToken,localCharacters,rememberLocalCharacter } from '../identity/local-characters';
+export interface GameUiRuntime {
+ audio:{setEnabled(enabled:boolean):void};
+ fps:number;
+ runtimeRenderScale:number;
+ graphics:any;
+ renderer:{info:{render:{calls:number}}};
+ world:{loadedChunks?:number};
+ command(command:any):void;
+ project(x:number,y:number,z:number):{x:number;y:number;visible:boolean};
+ getCharacterCustomization():CharacterCustomization;
+ getAvatarCandidate():any;
+ setAvatarCandidate(id:any):void;
+ setSelfEquipmentPreview(enabled:boolean):void;
+ setCharacterCreatorView(view:'none'|'face'|'body'|'full'):void;
+ setCharacterCustomizationKey(key:NumericCustomizationKey,value:number):void;
+ setCharacterStyleColor(key:any,value:string):void;
+ setCharacterOption(key:keyof CharacterCustomization,value:any):void;
+ applyCharacterFacePreset(id:string):void;
+ applyCharacterBodyPreset(id:string):void;
+ randomizeCharacterCustomization():void;
+ resetCharacterCustomization():void;
+ saveCharacterCustomizationSlot(slot:number):void;
+ loadCharacterCustomizationSlot(slot:number):unknown;
+ exportCharacterCustomization():string;
+ importCharacterCustomization(text:string):unknown;
+ previewCharacterAnimation?(name:string):void;
+ previewCharacterVoice?():void;
+ resumeCharacter(token:string):void;
+ setGraphicsPreset(preset:any):void;
+ setGraphicsSetting(key:any,value:any):void;
+ getGraphicsCapability():any;
+ getGraphicsDiagnostics():any;
+ setMobileMovement(x:number,z:number,sprint?:boolean):void;
+ stopMobileMovement():void;
+ mobileBasicAttack():void;
+ mobileFlight():void;
+ mobileInteract():void;
+ mobileJump():void;
+}
 export class GameUI {
  root:HTMLElement;panels=new Map<Panel,HTMLElement>();private previews=new Map<Panel,ModelPreview>();private tooltip:HTMLElement;private snap?:Snapshot;private lastRevision=-1;private inventorySelection?:string;private equipmentSlotFilter?:Slot;private equipmentSearch='';private log:{text:string;kind:string}[]=[];private damageLabels:{el:HTMLElement;event:GameEvent;age:number}[]=[];private toastUntil=0;private bestiaryId='wolf';private oldRegion='';private currentNpc='guide';private worldMap?:HTMLCanvasElement;private previewFrame=0;private valueCache=new Map<string,string>();private minimapAt=0;private worldMapAt=0;private buffsSignature='';private interactionSignature='';private hotbarSignature='';private mobileStickPointer:number|null=null;private mobileStickCenterX=0;private mobileStickCenterY=0;private mobileStickRadius=54;private connectionStatus=CLOUD_RUNTIME?'雲端世界':'本地世界';private mapStatus='地圖載入中';private pendingLoginToken='';
- constructor(host:HTMLElement,private game:Game){
+ constructor(host:HTMLElement,private game:GameUiRuntime){
   const editorLink=CLOUD_RUNTIME?'':`<a href="/editor">世界工坊 ${icon('arrow')}</a>`;
   const worldMode=this.connectionStatus;
   this.root=document.createElement('div');this.root.id='game-ui';this.root.classList.add('login-active');host.append(this.root);
