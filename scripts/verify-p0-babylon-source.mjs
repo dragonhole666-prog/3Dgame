@@ -6,20 +6,23 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const resolve=(p)=>path.join(root,p);
 const exists=(p)=>fs.existsSync(resolve(p))&&fs.statSync(resolve(p)).isFile();
 const read=(p)=>fs.readFileSync(resolve(p),'utf8').replace(/^\uFEFF/,'');
-const must=(ok,message)=>{if(!ok)throw new Error('P0 BABYLON SOURCE FAIL: '+message);console.log('PASS ',message);};
+const must=(ok,message)=>{if(!ok)throw new Error('HF35 BABYLON SOURCE FAIL: '+message);console.log('PASS ',message);};
 
 const required=[
- 'package.json','package-lock.json','src/main.ts','src/client/core/game.ts',
- 'src/client/babylon/engine.ts','src/client/babylon/runtime.ts',
- 'src/client/babylon/world/xianxia-world.ts','src/client/babylon/rendering/reference-pipeline.ts',
- 'src/client/babylon/lookdev.ts','src/client/babylon/reference-style.ts',
- 'src/shared/data/hf265-world-layout.ts','server/index.ts',
- 'cloudflare/world-worker/src/index.js','cloudflare/world-worker/wrangler.jsonc',
- 'scripts/verify-current.mjs','tests/hf27-visual-capture.spec.ts',
- 'config/p0-reference-metrics.json',
- 'tests/babylon-reference-hf34.test.ts','README_P0.26.8_HF34_Babylon參考圖LookDev鎖定.txt'
+ 'package.json','package-lock.json','src/main.ts',
+ 'src/client/core/babylon-game.ts',
+ 'src/client/babylon/actor-runtime.ts',
+ 'src/client/babylon/engine.ts',
+ 'src/client/babylon/world/xianxia-world.ts',
+ 'src/client/babylon/rendering/reference-pipeline.ts',
+ 'src/client/rendering/babylon-preview.ts',
+ 'src/client/ui/game-ui.ts',
+ 'src/shared/domains/navigation.ts',
+ 'src/shared/data/hf265-world-layout.ts',
+ 'src/shared/data/skills.ts','src/shared/data/monsters.ts','src/shared/data/world.ts',
+ 'server/index.ts','scripts/verify-hf35-babylon-runtime.mjs'
 ];
-for(const p of required)must(exists(p),'required source exists: '+p);
+for(const p of required)must(exists(p),'required recovery source exists: '+p);
 
 const pkg=JSON.parse(read('package.json'));
 const lock=JSON.parse(read('package-lock.json'));
@@ -27,30 +30,36 @@ must(pkg.dependencies?.['@babylonjs/core']==='9.28.0','Babylon core pinned at 9.
 must(pkg.dependencies?.['@babylonjs/loaders']==='9.28.0','Babylon loaders pinned at 9.28.0');
 must(lock.packages?.['']?.dependencies?.['@babylonjs/core']==='9.28.0','lock root Babylon core matches');
 must(lock.packages?.['']?.dependencies?.['@babylonjs/loaders']==='9.28.0','lock root Babylon loaders matches');
-must(lock.packages?.['']?.devDependencies?.['@playwright/test']==='1.55.0','lock root Playwright matches');
 
 const main=read('src/main.ts');
-must(main.includes("??'babylon'"),'Babylon is default runtime');
-must(main.includes("requested==='three'"),'legacy Three fallback is explicit');
-must(main.includes("import('./client/babylon/runtime')"),'Babylon runtime is lazy-loaded');
-const reference=read('src/client/babylon/reference-style.ts');
-const pipeline=read('src/client/babylon/rendering/reference-pipeline.ts');
-const world=read('src/client/babylon/world/xianxia-world.ts');
-must(reference.includes('hf34-babylon-lock'),'HF34 reference profile is active');
-must(pipeline.includes('TONEMAPPING_ACES'),'HF34 Babylon pipeline owns ACES');
-must(world.includes('SceneLoader.ImportMeshAsync'),'HF34 Babylon world prefers Quaternius glTF geometry');
-must(world.includes('MirrorTexture'),'HF34 Babylon world owns reflective lake rendering');
+must(main.includes("import('./client/core/babylon-game')"),'full Babylon game is the only normal game boot path');
+must(!main.includes("requested==='three'")&&!main.includes("client/core/game"),'main has no Three.js fallback path');
+
+const navigation=read('src/shared/domains/navigation.ts');
+must(!navigation.includes("from 'three'")&&!navigation.includes('three-pathfinding'),'server-authoritative navigation no longer depends on Three.js');
 
 const engine=read('src/client/babylon/engine.ts');
 must(engine.includes('WebGPUEngine'),'WebGPU engine path exists');
-must(engine.includes('new Engine('),'WebGL2 fallback exists');
+must(engine.includes('new Engine('),'Babylon WebGL fallback exists');
 
-const babylonFiles=fs.readdirSync(resolve('src/client/babylon'),{recursive:true})
- .filter((p)=>typeof p==='string'&&p.endsWith('.ts'))
- .map((p)=>path.posix.join('src/client/babylon',String(p).replaceAll('\\','/')));
-for(const p of babylonFiles){
+const world=read('src/client/babylon/world/xianxia-world.ts');
+must(world.includes('SceneLoader.ImportMeshAsync'),'Babylon world imports glTF assets natively');
+must(world.includes('MirrorTexture'),'Babylon world owns reflective water');
+
+const scan=[
+ 'src/client/core/babylon-game.ts',
+ 'src/client/rendering/babylon-preview.ts',
+ 'src/client/ui/game-ui.ts',
+ 'src/shared/domains/navigation.ts'
+];
+const babylonDir=fs.readdirSync(resolve('src/client/babylon'),{recursive:true})
+ .filter(p=>typeof p==='string'&&p.endsWith('.ts'))
+ .map(p=>path.posix.join('src/client/babylon',String(p).replaceAll('\\','/')));
+for(const p of [...scan,...babylonDir]){
  const source=read(p);
- must(!/from\s+['"]three(?:\/|['"])/.test(source),'Babylon layer has no Three.js import: '+p);
+ must(!/from\s+['"]three(?:\/|['"])/.test(source),'active Babylon layer has no Three.js import: '+p);
+ must(!source.includes('three-pathfinding'),'active Babylon layer has no three-pathfinding import: '+p);
+ must(!source.includes('@pixiv/three-vrm'),'active Babylon layer has no three-vrm import: '+p);
 }
 
-console.log('P0 BABYLON SOURCE VERIFICATION PASS');
+console.log('HF35 FULL-GAME BABYLON SOURCE VERIFICATION PASS');
