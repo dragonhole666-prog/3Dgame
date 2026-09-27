@@ -1,0 +1,70 @@
+name: HF27 Full Babylon Gate
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: hf27-full-babylon-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  source-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Babylon P0 source contract
+        shell: bash
+        run: |
+          test -f package.json
+          test -f src/main.ts
+          test -f src/app/QinglanApp.ts
+          test -f src/rendering/createEngine.ts
+          test -f src/rendering/BabylonVisualDirector.ts
+          test -f src/world/createP0ReferenceWorld.ts
+          test -f scripts/verify-babylon-only.mjs
+          test -f PROJECT_HANDOFF.md
+
+  build-test:
+    needs: source-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Babylon-only architecture gate
+        run: npm run verify:babylon-only
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
+      - name: Unit tests
+        run: npm test
+
+  visual-capture:
+    needs: build-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture fixed Babylon cameras
+        run: npm run visual:capture
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hf27-babylon-visual-captures
+          path: artifacts/hf27-*
+          if-no-files-found: warn

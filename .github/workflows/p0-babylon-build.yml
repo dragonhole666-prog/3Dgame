@@ -1,0 +1,55 @@
+name: P0 Babylon Build Gate
+
+on:
+  push:
+    branches:
+      - hf27-remote-visual-pipeline
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: p0-babylon-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Verify Babylon-only architecture
+        run: npm run verify:babylon-only
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+      - name: Upload production dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-babylon-dist
+          path: dist
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture fixed P0 cameras
+        run: npm run visual:capture
+      - name: Measure reference style score
+        run: npm run visual:score
+      - name: Upload visual captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-babylon-visual-captures
+          path: artifacts/hf27-*
+          if-no-files-found: warn

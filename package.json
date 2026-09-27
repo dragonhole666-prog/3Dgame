@@ -1,0 +1,33 @@
+{
+  "name": "qinglan-realms",
+  "version": "0.27.0-p0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "npm run verify:babylon-only && tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "visual:capture": "npx --yes @playwright/test@1.55.0 test tests/hf27-visual-capture.spec.ts --config=playwright.hf27.config.ts",
+    "visual:compare": "node scripts/hf27-visual-regression.mjs",
+    "visual:score": "node scripts/hf27-style-score.mjs --candidate artifacts/hf27-screenshots/spawn.png --target config/hf27-reference-style-target.json --json artifacts/hf27-style-score.json",
+    "visual:lookdev": "vite --host 0.0.0.0",
+    "verify:babylon-only": "node scripts/verify-babylon-only.mjs"
+  },
+  "dependencies": {
+    "@babylonjs/core": "8.26.0",
+    "@babylonjs/gui": "8.26.0",
+    "@babylonjs/loaders": "8.26.0",
+    "@babylonjs/materials": "8.26.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.5.2",
+    "@playwright/test": "1.55.0",
+    "typescript": "5.9.2",
+    "vite": "7.1.7",
+    "vitest": "3.2.4"
+  },
+  "engines": {
+    "node": ">=22.12.0 <25"
+  }
+}

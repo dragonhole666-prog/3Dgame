@@ -1,0 +1,15 @@
+{
+  "version":1,
+  "viewport":{"width":1200,"height":675,"deviceScaleFactor":1},
+  "settleMs":300,
+  "captures":[
+    {"id":"spawn","url":"/?visualCapture=spawn"},
+    {"id":"bridge","url":"/?visualCapture=bridge"},
+    {"id":"pavilion","url":"/?visualCapture=pavilion"},
+    {"id":"forest","url":"/?visualCapture=forest"},
+    {"id":"character-front","url":"/?visualCapture=character-front"},
+    {"id":"character-back","url":"/?visualCapture=character-back"},
+    {"id":"equipment-closeup","url":"/?visualCapture=equipment-closeup"},
+    {"id":"combat","url":"/?visualCapture=combat"}
+  ]
+}
