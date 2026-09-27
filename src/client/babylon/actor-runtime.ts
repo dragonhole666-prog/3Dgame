@@ -24,6 +24,7 @@ export interface BabylonActorInstance{
  visualRoot:TransformNode;
  meshes:AbstractMesh[];
  animations:AnimationGroup[];
+ boneNodes:Map<string,TransformNode>;
  assetUrl?:string;
  fallback:boolean;
  targetY:number;
