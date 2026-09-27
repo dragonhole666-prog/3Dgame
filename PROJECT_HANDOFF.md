@@ -87,33 +87,23 @@ The profile was retuned around these anchors rather than applying them as flat c
 
 ## Verification Results
 
-### Historical checks before the current Babylon v2 refactor
-Previously observed:
-- `node scripts/verify-current.mjs` → PASS
-- `node scripts/verify-package-integrity.mjs` → PASS
-- earlier HF27 JSON / Node syntax checks → PASS
-
-These historical results do **not** prove the current refactor passes.
-
-### Observed P0 Babylon gate
-Observed on commit `bcd60eea218a1f7c40b9ead3f0b562653db1b76a`, workflow run `36279975363`:
+### Latest observed P0 Babylon gate
+Observed on commit `1776bf80d73705a2a83e0f94677cf3882cfc6617`, workflow run `36282913777`:
 - Babylon-only architecture gate → PASS
 - Typecheck → PASS
 - Production build → PASS
 - Chromium install → PASS
 - Fixed-camera Playwright capture → PASS
+- Reference style scoring → PASS as diagnostic execution
 - Visual capture artifact upload → PASS
 - Production dist artifact upload → PASS
 
-The captured 1200×675 screenshots were downloaded and inspected. This is the first verified browser output for the Babylon-only P0 shell.
+Latest measured Spawn reference-style score from the uploaded artifact:
+- `62.025 / 100`
+- target threshold: `90`
+- acceptance: NOT YET MET
 
-### Current v2.3 visual-tuning commits
-Latest visual tuning commits:
-- `b3043656fc2a16a0aa19d3dc540573bc745499c3` — v2.3 LookDev retune
-- `3f51529e610007db50b13b125b8e8a310c7959f4` — softer procedural foliage / atmosphere / water
-- `318ff61aaf16fd059926438faee9c98c27bc55ef` — wider hero capture framing
-
-A workflow result for the new v2.3 head has not yet been observed. Do not claim the current head is green until a run is visible.
+This score is only one acceptance signal. The actual screenshot is still visibly below the commercial reference in foliage realism, architecture detail, mountain surface complexity, water microdetail and material richness.
 
 ## Known Issues
 - Complete historical gameplay/server/UI content has not yet been ported.
@@ -126,9 +116,28 @@ A workflow result for the new v2.3 head has not yet been observed. Do not claim 
 - Large project-owned binaries still require a versioned storage/bootstrap strategy.
 
 ## Current Work
-Continue the Babylon-only v2.3 visual-match pass from real browser captures. The first real P0 capture run was observed and exposed the main gap: composition was structurally correct but the procedural foliage was too bulbous/dark, mountains too cyan/opaque, water too mirror-heavy and the overall lighting contrast too hard compared with the supplied airy xianxia garden reference.
+Autonomous screenshot-driven Babylon visual matching is now active.
 
-The current branch has now been retuned to a softer, brighter v2.3 profile, smaller/more numerous maple clusters, paler atmospheric mountains, softer water reflection and a slightly wider hero camera. The new commits still need their own observed build/capture run before visual acceptance.
+The user-supplied 1200×675 reference has been converted into a persistent measured style target at `config/hf27-reference-style-target.json`. The P0 workflow now captures real browser output and runs `npm run visual:score` against the Spawn capture. The score is diagnostic and must not be gamed by rendering the reference image into the scene; human visual review remains required.
+
+Observed progression from real captures during this session:
+- pre-measured v2.3 capture: approximately 44.5 on the current weighted style formula
+- v2.4 measured recovery: approximately 58.1
+- procedural detail / lattice / shoreline pass: approximately 58.5
+- v2.6 warm-canopy / water / composition pass: 61.927
+- CC0 Quaternius detailed-tree integration: 62.025
+
+Latest verified visual score components:
+- overall: 62.025 / 100
+- spatial: 50.152
+- saturation: 90.514
+- tone: 94.875
+- detail: 20.881
+- warm/cool: 57.260
+
+The largest remaining deficits are legitimate scene detail, spatial composition/material richness, and warm foliage coverage. Tone and saturation are already near target and should not be over-tuned just to increase the scalar score.
+
+The branch now includes CC0 Quaternius nature GLBs under `public/assets/vendor/quaternius/` and loads detailed trees with Babylon `SceneLoader`. The source license is bundled beside the assets.
 
 ## Next Actions
 1. Observe the workflow triggered by the v2.3 head and fix any regression until architecture gate, typecheck, build and capture are green.
