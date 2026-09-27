@@ -1,3 +1,4 @@
+import '@babylonjs/loaders/glTF';
 import {
   CascadedShadowGenerator,
   DirectionalLight,
@@ -9,6 +10,7 @@ import {
   PBRMaterial,
   Plane,
   Scene,
+  SceneLoader,
   ShadowGenerator,
   Texture,
   Vector3,
@@ -697,6 +699,51 @@ function createGrassTufts(
   blade.position.set(0,-20,0);
 }
 
+function importDetailedTree(
+  scene:Scene,
+  shadow:CascadedShadowGenerator,
+  file:string,
+  x:number,
+  z:number,
+  scale:number,
+  foliageTint:string
+){
+  void SceneLoader.ImportMeshAsync('', '/assets/vendor/quaternius/', file, scene)
+    .then((result)=>{
+      const root=result.meshes[0];
+      if(root){
+        root.position.set(x,0,z);
+        root.scaling.setAll(scale);
+      }
+
+      for(const mesh of result.meshes){
+        if(!(mesh instanceof Mesh)) continue;
+        mesh.receiveShadows=true;
+        shadow.addShadowCaster(mesh);
+        const material=mesh.material;
+        if(material instanceof PBRMaterial){
+          const cloned=material.clone(`${material.name}_Qinglan_${file}_${mesh.uniqueId}`);
+          cloned.metallic=0;
+          cloned.environmentIntensity=.68;
+          const original=cloned.albedoColor;
+          const foliageLike=original.g>original.r*.92 && original.g>original.b*.82;
+          if(foliageLike){
+            cloned.albedoColor=color3(foliageTint);
+            cloned.roughness=.79;
+            cloned.sheen.isEnabled=true;
+            cloned.sheen.intensity=.12;
+            cloned.emissiveColor=color3(foliageTint).scale(.045);
+          }else{
+            cloned.albedoColor=color3('#4B2B20');
+            cloned.roughness=.84;
+          }
+          mesh.material=cloned;
+        }
+      }
+    })
+    .catch((error)=>console.warn('[P0] detailed tree import failed',file,error));
+}
+
 function createShoreRocks(
   scene:Scene,
   materials:P0Materials,
@@ -782,6 +829,10 @@ export function createP0ReferenceWorld(
     [-3.8,15.3,.88,2],[4.2,15.4,.94,0]
   ] as const;
   maples.forEach(([x,z,s,v])=>createMaple(scene,materials,shadow,x,z,s,v));
+
+  importDetailedTree(scene,shadow,'tree1.glb',-6.6,12.3,.82,profile.foliage.mapleLit);
+  importDetailedTree(scene,shadow,'tree2.glb',6.2,14.6,.76,profile.foliage.mapleBase);
+  importDetailedTree(scene,shadow,'tree3.glb',17.2,15.6,.92,profile.foliage.mapleHighlight);
 
   createFlowerBand(scene,-8.4,1.2,8.5,48);
   createFlowerBand(scene,9.8,1.0,8,44);
