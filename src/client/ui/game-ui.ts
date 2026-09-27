@@ -30,6 +30,8 @@ export interface GameUiRuntime {
  renderer:{info:{render:{calls:number}}};
  world:{loadedChunks?:number};
  command(command:any):void;
+ createCharacter(name:string):void;
+ interact(id?:string):void;
  project(x:number,y:number,z:number):{x:number;y:number;visible:boolean};
  getCharacterCustomization():CharacterCustomization;
  getAvatarCandidate():any;
