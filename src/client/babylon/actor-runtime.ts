@@ -15,6 +15,7 @@ import {
 import '@babylonjs/loaders/glTF';
 import type { MonsterDef } from '../../shared/types';
 import { avatarCandidate,type AvatarCandidateId } from '../character/avatar-candidates';
+import { canonicalBoneName } from '../character/bone-names';
 
 export type ActorKind='player'|'npc'|'monster';
 
@@ -103,15 +104,21 @@ export class BabylonActorFactory{
    const head=MeshBuilder.CreateSphere(`HF35_head_${id}`,{diameter:height*.22,segments:16},this.scene);
    head.position.y=height*.92;head.material=skin;head.parent=visualRoot;meshes.push(head);
   }
+  const boneNodes=new Map<string,TransformNode>();
+  const socket=(name:string,x:number,y:number,z:number)=>{
+   const node=new TransformNode('HF35_'+id+'_'+name,this.scene);node.parent=visualRoot;node.position.set(x,y,z);boneNodes.set(name,node);return node;
+  };
+  socket('Head',0,height*.92,0);socket('Chest',0,height*.64,0);socket('Hips',0,height*.46,0);
+  socket('LeftHand',-height*.30,height*.64,0);socket('RightHand',height*.30,height*.64,0);socket('Back',0,height*.68,height*.08);
   this.tag(meshes,kind,id);
-  return this.instance(root,visualRoot,meshes,[],undefined,true);
+  return this.instance(root,visualRoot,meshes,[],boneNodes,undefined,true);
  }
 
- private instance(root:TransformNode,visualRoot:TransformNode,meshes:AbstractMesh[],animations:AnimationGroup[],assetUrl:string|undefined,fallback:boolean):BabylonActorInstance{
+ private instance(root:TransformNode,visualRoot:TransformNode,meshes:AbstractMesh[],animations:AnimationGroup[],boneNodes:Map<string,TransformNode>,assetUrl:string|undefined,fallback:boolean):BabylonActorInstance{
   const active=chooseLoop(animations);
   if(active){try{active.start(true,1,active.from,active.to,false);}catch{}}
   return {
-   root,visualRoot,meshes,animations,assetUrl,fallback,targetY:0,
+   root,visualRoot,meshes,animations,boneNodes,assetUrl,fallback,targetY:0,
    update(_dt:number,_time:number){},
    dispose(){
     for(const group of animations)try{group.dispose();}catch{}
@@ -128,11 +135,35 @@ export class BabylonActorFactory{
    const visualRoot=new TransformNode(`HF35_${kind}_visual_${id}`,this.scene);visualRoot.parent=root;
    for(const node of entries.rootNodes??[])node.parent=visualRoot;
    const meshes:AbstractMesh[]=[];
+   const nodes:TransformNode[]=[];
    for(const node of entries.rootNodes??[]){
+    if(node instanceof TransformNode)nodes.push(node);
     if(node instanceof AbstractMesh)meshes.push(node);
     if('getChildMeshes' in node)meshes.push(...(node as any).getChildMeshes(false));
+    if('getChildTransformNodes' in node)nodes.push(...(node as any).getChildTransformNodes(false));
    }
    const unique=[...new Set(meshes)];
+   const boneNodes=new Map<string,TransformNode>();
+   for(const node of [...new Set(nodes)]){
+    const canonical=canonicalBoneName(node.name);
+    if(canonical&&!boneNodes.has(canonical))boneNodes.set(canonical,node);
+   }
+   // Some glTF/VRM exporters expose joints only through Skeleton bones. Prefer linked transform nodes.
+   for(const mesh of unique){
+    const skeleton=(mesh as Mesh).skeleton;
+    if(!skeleton)continue;
+    for(const bone of skeleton.bones){
+      const canonical=canonicalBoneName(bone.name);if(!canonical||boneNodes.has(canonical))continue;
+      const linked=(bone as any).getTransformNode?.() as TransformNode|undefined;
+      if(linked)boneNodes.set(canonical,linked);
+    }
+   }
+   const fallbackSocket=(name:string,x:number,y:number,z:number)=>{
+    if(boneNodes.has(name))return;
+    const node=new TransformNode('HF35_'+id+'_socket_'+name,this.scene);node.parent=visualRoot;node.position.set(x,y,z);boneNodes.set(name,node);
+   };
+   fallbackSocket('Head',0,targetHeight*.92,0);fallbackSocket('Chest',0,targetHeight*.64,0);fallbackSocket('Hips',0,targetHeight*.46,0);
+   fallbackSocket('LeftHand',-targetHeight*.30,targetHeight*.64,0);fallbackSocket('RightHand',targetHeight*.30,targetHeight*.64,0);fallbackSocket('Back',0,targetHeight*.68,targetHeight*.08);
    this.tag(unique,kind,id);
    const bounds=meshBounds(unique);
    if(bounds){
@@ -148,7 +179,7 @@ export class BabylonActorFactory{
      if(kind==='monster'&&!mat.albedoTexture)mat.albedoColor=Color3.Lerp(mat.albedoColor??Color3.White(),Color3.FromHexString(color),.16);
     }
    }
-   return this.instance(root,visualRoot,unique,entries.animationGroups??[],url,false);
+   return this.instance(root,visualRoot,unique,entries.animationGroups??[],boneNodes,url,false);
   }catch(error){
    console.warn('[HF35 Actor] asset unavailable, procedural fallback:',kind,id,url,error);
    return this.procedural(kind,id,color,targetHeight);
