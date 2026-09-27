@@ -71,7 +71,7 @@ export interface ReferenceLookProfile {
 
 export const P0_REFERENCE_PROFILE:ReferenceLookProfile={
   version:2,
-  name:'P0 Reference Match v2.4 · Measured Reference Recovery',
+  name:'P0 Reference Match v2.6 · Warm Canopy Spatial Recovery',
   environment:{
     clearColor:'#A9D3E3',
     fogColor:'#91B4C2',
@@ -95,21 +95,21 @@ export const P0_REFERENCE_PROFILE:ReferenceLookProfile={
     warmRimIntensity:0.24
   },
   foliage:{
-    mapleShadow:'#48191B',
-    mapleBase:'#9A332B',
-    mapleLit:'#D55A43',
-    mapleHighlight:'#F0A17D',
+    mapleShadow:'#6B2425',
+    mapleBase:'#B74434',
+    mapleLit:'#E76A49',
+    mapleHighlight:'#F7B08A',
     grassShadow:'#203229',
     grassBase:'#3D573F',
     grassLit:'#71845B'
   },
   water:{
-    deep:'#0A2D43',
-    shallow:'#23617D',
-    reflection:0.58,
-    roughness:0.24,
-    alpha:0.86,
-    normalStrength:0.20
+    deep:'#082A40',
+    shallow:'#1C5873',
+    reflection:0.47,
+    roughness:0.29,
+    alpha:0.88,
+    normalStrength:0.23
   },
   architecture:{
     woodDeep:'#2E1A15',
