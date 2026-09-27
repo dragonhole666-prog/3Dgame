@@ -71,70 +71,70 @@ export interface ReferenceLookProfile {
 
 export const P0_REFERENCE_PROFILE:ReferenceLookProfile={
   version:2,
-  name:'P0 Reference Match v2.3 · Airy Cinematic Garden',
+  name:'P0 Reference Match v2.4 · Measured Reference Recovery',
   environment:{
-    clearColor:'#B8DCE9',
-    fogColor:'#A5C6CF',
-    fogStart:25,
-    fogEnd:84,
-    exposure:0.96,
-    contrast:1.22,
-    environmentIntensity:0.88
+    clearColor:'#A9D3E3',
+    fogColor:'#91B4C2',
+    fogStart:42,
+    fogEnd:105,
+    exposure:0.79,
+    contrast:1.30,
+    environmentIntensity:0.80
   },
   lighting:{
-    sunColor:'#F7D7C0',
-    sunIntensity:2.55,
-    sunAzimuth:34,
-    sunElevation:45,
-    skyColor:'#C7E0E8',
-    groundColor:'#31484C',
-    hemisphereIntensity:0.43,
-    coolFillColor:'#6F98A8',
-    coolFillIntensity:0.22,
-    warmRimColor:'#E7A487',
-    warmRimIntensity:0.16
+    sunColor:'#F5CDB6',
+    sunIntensity:2.42,
+    sunAzimuth:36,
+    sunElevation:46,
+    skyColor:'#B8D7E2',
+    groundColor:'#24383D',
+    hemisphereIntensity:0.31,
+    coolFillColor:'#557A8C',
+    coolFillIntensity:0.12,
+    warmRimColor:'#E39B79',
+    warmRimIntensity:0.24
   },
   foliage:{
-    mapleShadow:'#672B2A',
-    mapleBase:'#A94C3F',
-    mapleLit:'#D8795D',
-    mapleHighlight:'#F2B495',
-    grassShadow:'#30443A',
-    grassBase:'#526A50',
-    grassLit:'#7F9270'
+    mapleShadow:'#48191B',
+    mapleBase:'#9A332B',
+    mapleLit:'#D55A43',
+    mapleHighlight:'#F0A17D',
+    grassShadow:'#203229',
+    grassBase:'#3D573F',
+    grassLit:'#71845B'
   },
   water:{
-    deep:'#153F55',
-    shallow:'#3C7892',
-    reflection:0.67,
-    roughness:0.21,
-    alpha:0.84,
-    normalStrength:0.18
+    deep:'#0A2D43',
+    shallow:'#23617D',
+    reflection:0.58,
+    roughness:0.24,
+    alpha:0.86,
+    normalStrength:0.20
   },
   architecture:{
-    woodDeep:'#3B2720',
-    woodBase:'#79503A',
-    woodLit:'#AE7655',
-    roofDeep:'#354952',
-    roofLit:'#667D87',
-    stoneDeep:'#666B68',
-    stoneLit:'#B9B3A7'
+    woodDeep:'#2E1A15',
+    woodBase:'#70402F',
+    woodLit:'#A96849',
+    roofDeep:'#263942',
+    roofLit:'#526A75',
+    stoneDeep:'#515756',
+    stoneLit:'#AAA79B'
   },
   post:{
-    bloomWeight:0.048,
-    bloomThreshold:0.93,
-    bloomKernel:32,
-    vignetteWeight:0.34,
-    vignetteStretch:0.14,
-    saturation:9,
-    highlightsHue:24,
-    highlightsDensity:6,
-    highlightsSaturation:6,
-    shadowsHue:202,
-    shadowsDensity:5,
-    shadowsSaturation:6,
-    sharpenEdgeAmount:0.10,
-    sharpenColorAmount:0.84
+    bloomWeight:0.055,
+    bloomThreshold:0.92,
+    bloomKernel:34,
+    vignetteWeight:0.42,
+    vignetteStretch:0.16,
+    saturation:23,
+    highlightsHue:28,
+    highlightsDensity:10,
+    highlightsSaturation:10,
+    shadowsHue:205,
+    shadowsDensity:8,
+    shadowsSaturation:9,
+    sharpenEdgeAmount:0.18,
+    sharpenColorAmount:0.95
   }
 };
 
