@@ -36,7 +36,7 @@ must(main.includes("import('./client/core/babylon-game')"),'full Babylon game is
 must(!main.includes("requested==='three'")&&!main.includes("client/core/game"),'main has no Three.js fallback path');
 
 const navigation=read('src/shared/domains/navigation.ts');
-must(!navigation.includes("from 'three'")&&!navigation.includes('three-pathfinding'),'server-authoritative navigation no longer depends on Three.js');
+must(!/from\s+['\"]three(?:\\/|['\"])/.test(navigation)&&!/from\s+['\"]three-pathfinding(?:\\/|['\"])/.test(navigation),'server-authoritative navigation no longer imports Three.js / three-pathfinding');
 
 const engine=read('src/client/babylon/engine.ts');
 must(engine.includes('WebGPUEngine'),'WebGPU engine path exists');
