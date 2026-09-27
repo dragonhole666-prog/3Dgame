@@ -532,15 +532,15 @@ export class BabylonGame{
  setCharacterCustomizationKey(key:NumericCustomizationKey,value:number){this.characterCustomization={...this.characterCustomization,[key]:value};this.saveCustomization();}
  setCharacterStyleColor(key:'skinColor'|'hairColor'|'leftEyeColor'|'rightEyeColor'|'lipColor'|'underwearColor'|'tattooColor'|'makeupColor',value:string){this.characterCustomization={...this.characterCustomization,[key]:value};this.saveCustomization();}
  setCharacterOption(key:keyof CharacterCustomization,value:any){this.characterCustomization={...this.characterCustomization,[key]:value};this.saveCustomization();}
- applyCharacterFacePreset(id:string){this.characterCustomization=applyFacePreset(this.characterCustomization,Number(id)||0);this.saveCustomization();}
- applyCharacterBodyPreset(id:string){this.characterCustomization=applyBodyPreset(this.characterCustomization,Number(id)||0);this.saveCustomization();}
+ applyCharacterFacePreset(index:number){this.characterCustomization=applyFacePreset(this.characterCustomization,index);this.saveCustomization();}
+ applyCharacterBodyPreset(index:number){this.characterCustomization=applyBodyPreset(this.characterCustomization,index);this.saveCustomization();}
  randomizeCharacterCustomization(){this.characterCustomization=randomCustomization(this.characterCustomization);this.saveCustomization();}
  resetCharacterCustomization(){this.characterCustomization={...DEFAULT_CUSTOMIZATION};this.saveCustomization();}
- saveCharacterCustomizationSlot(slot:number){saveCustomizationSlot(slot,this.characterCustomization);}
+ saveCharacterCustomizationSlot(slot:number){return saveCustomizationSlot(slot,this.characterCustomization);}
  loadCharacterCustomizationSlot(slot:number){const v=loadCustomizationSlot(slot);if(v){this.characterCustomization=v;this.saveCustomization();}return v;}
  exportCharacterCustomization(){return exportCustomization(this.characterCustomization);}
- importCharacterCustomization(text:string){const v=importCustomization(text);if(v){this.characterCustomization=v;this.saveCustomization();}return v;}
- previewCharacterAnimation(_name:string){this.ui?.toast('Babylon 動作預覽正在轉換 AnimationGroup。');}
+ importCharacterCustomization(text:string){const v=importCustomization(text);if(!v)return false;this.characterCustomization=v;this.saveCustomization();return true;}
+ previewCharacterAnimation(_name:string){this.ui?.toast('Babylon 動作預覽正在轉換 AnimationGroup。');return false;}
  previewCharacterVoice(){this.audio.play('swing');}
 
  setMobileMovement(x:number,z:number,sprint=false){this.input.setVirtualMovement(x,z,sprint);}
