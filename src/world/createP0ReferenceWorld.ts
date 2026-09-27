@@ -92,20 +92,49 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
     material.clearCoat.roughness=.42;
   }
 
+  const ground=pbr('P0_GroundMaterial',scene,profile.foliage.grassShadow,.96,0,.48);
+  const grassShadow=pbr('P0_GrassShadowMaterial',scene,profile.foliage.grassShadow,.93,0,.48);
+  const grass=pbr('P0_GrassMaterial',scene,profile.foliage.grassBase,.90,0,.52);
+  const grassLit=pbr('P0_GrassLitMaterial',scene,profile.foliage.grassLit,.88,0,.56);
+  const lakeDeep=pbr('P0_LakeDeepMaterial',scene,profile.water.deep,.99,0,.35);
+  const woodDeep=pbr('P0_WoodDeepMaterial',scene,profile.architecture.woodDeep,.79,0,.54);
+  const wood=pbr('P0_WoodMaterial',scene,profile.architecture.woodBase,.72,0,.60);
+  const woodLit=pbr('P0_WoodLitMaterial',scene,profile.architecture.woodLit,.66,0,.64);
+  const stone=pbr('P0_StoneMaterial',scene,profile.architecture.stoneLit,.88,0,.62);
+  const stoneDark=pbr('P0_StoneDarkMaterial',scene,profile.architecture.stoneDeep,.92,0,.52);
+
+  const groundDetail=createDetailTexture(scene,'P0_GroundDetail','ground');
+  const stoneDetail=createDetailTexture(scene,'P0_StoneDetail','stone');
+  const woodDetail=createDetailTexture(scene,'P0_WoodDetail','wood');
+  const foliageDetail=createDetailTexture(scene,'P0_FoliageDetail','foliage');
+
+  for(const material of [ground,grassShadow,grass,grassLit]){
+    applySurfaceDetail(material,groundDetail,8.5,8.5);
+  }
+  for(const material of [stone,stoneDark,mountainNear,mountainFar]){
+    applySurfaceDetail(material,stoneDetail,3.2,4.8);
+  }
+  for(const material of [woodDeep,wood,woodLit,roof,roofLit]){
+    applySurfaceDetail(material,woodDetail,2.4,5.6);
+  }
+  for(const material of [mapleShadow,mapleBase,mapleLit,mapleHighlight]){
+    applySurfaceDetail(material,foliageDetail,4.2,3.5);
+  }
+
   return {
-    ground:pbr('P0_GroundMaterial',scene,profile.foliage.grassShadow,.96,0,.48),
-    grassShadow:pbr('P0_GrassShadowMaterial',scene,profile.foliage.grassShadow,.93,0,.48),
-    grass:pbr('P0_GrassMaterial',scene,profile.foliage.grassBase,.90,0,.52),
-    grassLit:pbr('P0_GrassLitMaterial',scene,profile.foliage.grassLit,.88,0,.56),
-    lakeDeep:pbr('P0_LakeDeepMaterial',scene,profile.water.deep,.99,0,.35),
+    ground,
+    grassShadow,
+    grass,
+    grassLit,
+    lakeDeep,
     water,
-    woodDeep:pbr('P0_WoodDeepMaterial',scene,profile.architecture.woodDeep,.79,0,.54),
-    wood:pbr('P0_WoodMaterial',scene,profile.architecture.woodBase,.72,0,.60),
-    woodLit:pbr('P0_WoodLitMaterial',scene,profile.architecture.woodLit,.66,0,.64),
+    woodDeep,
+    wood,
+    woodLit,
     roof,
     roofLit,
-    stone:pbr('P0_StoneMaterial',scene,profile.architecture.stoneLit,.88,0,.62),
-    stoneDark:pbr('P0_StoneDarkMaterial',scene,profile.architecture.stoneDeep,.92,0,.52),
+    stone,
+    stoneDark,
     mapleShadow,
     mapleBase,
     mapleLit,
@@ -118,6 +147,58 @@ function makeMaterials(scene:Scene,profile:ReferenceLookProfile):P0Materials{
 function noise(seed:number,index:number){
   const raw=Math.sin(seed*12.9898+index*78.233)*43758.5453;
   return raw-Math.floor(raw);
+}
+
+function createDetailTexture(
+  scene:Scene,
+  name:string,
+  mode:'ground'|'stone'|'wood'|'foliage'
+){
+  const size=192;
+  const texture=new DynamicTexture(name,{width:size,height:size},scene,false);
+  const ctx=texture.getContext() as unknown as CanvasRenderingContext2D;
+  const image=ctx.createImageData(size,size);
+
+  for(let y=0;y<size;y++){
+    for(let x=0;x<size;x++){
+      const u=x/size;
+      const v=y/size;
+      let value=230;
+      if(mode==='ground'){
+        const broad=Math.sin(u*18.0+Math.sin(v*11.0))*9+Math.cos(v*23.0-u*7.0)*7;
+        const fine=(noise(17+y*.013,x)-.5)*18;
+        value=218+broad+fine;
+      }else if(mode==='stone'){
+        const strata=Math.sin(v*31.0+Math.sin(u*9.0)*1.8)*7;
+        const pits=(noise(43+y*.017,x)-.5)*20;
+        value=224+strata+pits;
+      }else if(mode==='wood'){
+        const grain=Math.sin(u*8.0+Math.sin(v*39.0)*.18)*11+Math.sin(u*26.0+v*4.0)*4;
+        value=225+grain;
+      }else{
+        const vein=Math.sin(u*34.0+v*9.0)*5+Math.sin(v*28.0-u*7.0)*4;
+        value=232+vein+(noise(71+y*.011,x)-.5)*12;
+      }
+      value=Math.max(176,Math.min(255,Math.round(value)));
+      const i=(y*size+x)*4;
+      image.data[i]=value;
+      image.data[i+1]=value;
+      image.data[i+2]=value;
+      image.data[i+3]=255;
+    }
+  }
+
+  ctx.putImageData(image,0,0);
+  texture.update(false);
+  texture.wrapU=Texture.WRAP_ADDRESSMODE;
+  texture.wrapV=Texture.WRAP_ADDRESSMODE;
+  return texture;
+}
+
+function applySurfaceDetail(material:PBRMaterial,texture:Texture,uScale:number,vScale:number){
+  texture.uScale=uScale;
+  texture.vScale=vScale;
+  material.albedoTexture=texture;
 }
 
 function createSkyBackdrop(scene:Scene){
@@ -387,6 +468,22 @@ function createPavilion(
     shadow.addShadowCaster(beam);
   }
 
+  for(const zSide of [-1.62,1.62]){
+    const rail=MeshBuilder.CreateBox('P0_PavilionRail',{width:4.55,height:.15,depth:.13},scene);
+    rail.parent=root;
+    rail.position.set(0,1.42,zSide);
+    rail.material=materials.woodLit;
+    shadow.addShadowCaster(rail);
+
+    for(let i=-5;i<=5;i++){
+      const slat=MeshBuilder.CreateBox('P0_PavilionLattice',{width:.075,height:1.15,depth:.09},scene);
+      slat.parent=root;
+      slat.position.set(i*.39,1.95,zSide);
+      slat.material=i%2===0?materials.wood:materials.woodLit;
+      shadow.addShadowCaster(slat);
+    }
+  }
+
   const roof=MeshBuilder.CreateCylinder('P0_PavilionRoof',{
     height:1.05,
     diameterTop:5.15,
@@ -507,6 +604,36 @@ function createBankPatch(
   return bank;
 }
 
+function createGrassTufts(
+  scene:Scene,
+  materials:P0Materials
+){
+  const blade=MeshBuilder.CreateCylinder('P0_GrassBlade',{
+    height:.62,
+    diameterTop:.012,
+    diameterBottom:.055,
+    tessellation:4
+  },scene);
+  blade.material=materials.grassLit;
+  blade.isPickable=false;
+
+  for(let i=0;i<320;i++){
+    const side=i%2===0?-1:1;
+    const band=i%5;
+    const t=i/319;
+    const x=side*(7.2+noise(31,i)*8.2);
+    const z=.55+noise(47,i)*13.8+band*.06;
+    const inst=blade.createInstance('P0_GrassBladeInstance');
+    inst.position.set(x,.40,z);
+    inst.rotation.y=noise(59,i)*Math.PI*2;
+    inst.rotation.z=(noise(67,i)-.5)*.24;
+    const s=.55+noise(73,i)*.95;
+    inst.scaling.set(.72+noise(79,i)*.45,s,.72+noise(83,i)*.45);
+    inst.isPickable=false;
+  }
+  blade.position.set(0,-20,0);
+}
+
 function createShoreRocks(
   scene:Scene,
   materials:P0Materials,
@@ -597,6 +724,7 @@ export function createP0ReferenceWorld(
   createFlowerBand(scene,9.8,1.0,8,44);
   createFlowerBand(scene,0,14.2,13,56);
   createShoreRocks(scene,materials,shadow);
+  createGrassTufts(scene,materials);
 
   const lakeBed=MeshBuilder.CreateDisc('P0_LakeBed',{
     radius:25,
