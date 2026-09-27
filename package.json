@@ -10,6 +10,7 @@
     "test": "vitest run",
     "visual:capture": "npx --yes @playwright/test@1.55.0 test tests/hf27-visual-capture.spec.ts --config=playwright.hf27.config.ts",
     "visual:compare": "node scripts/hf27-visual-regression.mjs",
+    "visual:score": "node scripts/hf27-style-score.mjs --candidate artifacts/hf27-screenshots/spawn.png --target config/hf27-reference-style-target.json --json artifacts/hf27-style-score.json",
     "visual:lookdev": "vite --host 0.0.0.0",
     "verify:babylon-only": "node scripts/verify-babylon-only.mjs"
   },
