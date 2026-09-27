@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
- assetsInclude:['**/*.glb','**/*.gltf','**/*.hdr','**/*.exr'],
+ assetsInclude:['**/*.glb','**/*.gltf','**/*.vrm','**/*.hdr','**/*.exr'],
  server:{
   port:5173,
   strictPort:true,
@@ -12,15 +12,6 @@ export default defineConfig({
   }
  },
  build:{
-  chunkSizeWarningLimit:900,
-  rollupOptions:{
-   output:{
-    manualChunks:{
-     three:['three'],
-     vrm:['@pixiv/three-vrm'],
-     pathfinding:['three-pathfinding']
-    }
-   }
-  }
+  chunkSizeWarningLimit:1800
  }
 });
