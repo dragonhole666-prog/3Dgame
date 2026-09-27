@@ -318,19 +318,19 @@ function createMaple(
     new Vector3(x-1.38*scale,5.16*scale,z-.42*scale)
   ];
 
-  for(let i=0;i<58;i++){
+  for(let i=0;i<92;i++){
     const center=centers[i%centers.length];
-    const angle=i/58*Math.PI*2+variant*.41;
-    const radius=(.34+noise(variant+2,i)*1.16)*scale;
-    const yLift=(noise(variant+5,i)-.42)*1.12*scale;
-    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.43*scale,subdivisions:2,flat:false},scene);
+    const angle=i/92*Math.PI*2+variant*.41;
+    const radius=(.30+noise(variant+2,i)*1.28)*scale;
+    const yLift=(noise(variant+5,i)-.43)*1.22*scale;
+    const blob=MeshBuilder.CreateIcoSphere('P0_MapleFoliage',{radius:.31*scale,subdivisions:2,flat:false},scene);
     blob.position.set(
       center.x+Math.cos(angle)*radius,
       center.y+yLift,
       center.z+Math.sin(angle)*radius*.70
     );
-    const size=.62+noise(variant+9,i)*.52;
-    blob.scaling.set(size*1.48,size*.58,size*1.16);
+    const size=.56+noise(variant+9,i)*.56;
+    blob.scaling.set(size*1.52,size*.50,size*1.20);
     blob.rotation.set(noise(variant,80+i)*.45,angle,noise(variant,120+i)*.38);
     blob.material=foliageMaterials[(i+variant)%foliageMaterials.length];
     blob.receiveShadows=true;
@@ -609,9 +609,9 @@ export function createP0ReferenceWorld(
   lakeBed.material=materials.lakeDeep;
   lakeBed.receiveShadows=true;
 
-  const mistMaterial=pbr('P0_MistMaterial',scene,'#BDD5D8',1,0,0);
-  mistMaterial.emissiveColor=color3('#B4D0D5');
-  mistMaterial.alpha=.075;
+  const mistMaterial=pbr('P0_MistMaterial',scene,'#AFCBD2',1,0,0);
+  mistMaterial.emissiveColor=color3('#A4C4CC');
+  mistMaterial.alpha=.055;
   mistMaterial.transparencyMode=Material.MATERIAL_ALPHABLEND;
   mistMaterial.unlit=true;
   mistMaterial.backFaceCulling=false;
