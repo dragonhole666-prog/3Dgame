@@ -46,7 +46,14 @@ jobs:
         run: npm run build
       - name: Babylon source integrity
         run: npm run verify:p0:babylon
+      - name: HF35 active runtime Babylon-only gate
+        if: github.ref_name == 'hf35-fullgame-babylon-recovery'
+        run: npm run verify:hf35:babylon
+      - name: HF35 full-game preservation gate
+        if: github.ref_name == 'hf35-fullgame-babylon-recovery'
+        run: npm run verify:hf35:fullgame
       - name: Current project verification
+        if: github.ref_name != 'hf35-fullgame-babylon-recovery'
         run: npm run verify:current
       - name: Unit tests
         run: npm test
